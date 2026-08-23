@@ -37,14 +37,14 @@ description and `noscript` fallback in `index.html`.
 src/
 ├── components/          one folder per component: .tsx + .module.css + index.ts (+ .test.tsx)
 │   ├── Nav/             animated menu — inline bar on desktop, full panel on mobile
-│   ├── Hero/            landing view with two independently parallaxed layers
+│   ├── Hero/            pinned landing scene — scroll scrubs the headline apart
 │   ├── ScrollSpine/     the signature element: reading progress + section markers
 │   ├── Reveal/          shared scroll-into-view wrapper used by every section
 │   ├── Section/         layout primitive: rhythm, landmark, heading association
 │   ├── Projects/        container + ProjectCard/ presentation child
 │   ├── Timeline/        animated history + TimelineItem/ child
 │   └── …                About, StackMatrix, Approach, Exploring, Contact, SkipLink
-├── hooks/               useInView, useParallax, useScrollProgress, useActiveSection…
+├── hooks/               useInView, useScrollScene, useScrollProgress, useActiveSection…
 ├── services/            data sources behind an interface
 ├── data/                all editable content
 ├── types/               domain model — no React, no DOM
@@ -78,8 +78,9 @@ Three primitives cover every effect on the page:
 
 - `useInView` — IntersectionObserver, used by `Reveal` and each timeline entry. Touch-friendly
   by construction, since it never listens to scroll.
-- `useParallax` — writes `--parallax-y` and `--parallax-fade` to the element and lets CSS
-  decide what to do with them. Coalesced to one write per animation frame.
+- `useScrollScene` — writes `--scene` (0 → 1 progress through a pinned section) to the
+  element and lets CSS choreograph the whole scene from that one number. Coalesced to one
+  write per animation frame. The hero's break-apart sequence runs entirely on it.
 - `useScrollProgress` — document progress as 0→1, driving the spine.
 
 Every transition duration is multiplied by `var(--motion)`, which

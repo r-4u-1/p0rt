@@ -1,6 +1,30 @@
-.hero {
+/*
+ * The hero is a pinned, scroll-scrubbed scene. `useScrollScene` writes
+ * `--scene` (0 → 1) to the section; everything below derives from it.
+ *
+ *   --break  0 → 1 across the first 60% of the runway — the headline
+ *            fractures, the floor tilts over, the alarm glow rises.
+ *   --crack  break², an eased flavour of the same number: starts slow,
+ *            accelerates. Used where the motion should feel like a snap.
+ *   --clear  0 → 1 across the last 38% — the debris fades and the stage
+ *            hands over to the next section.
+ *
+ * Every displacement is multiplied by `--motion`, and the runway itself is
+ * `170vh * var(--motion)`, so prefers-reduced-motion collapses the whole
+ * scene to one static screen with zero pinning.
+ */
+
+.scene {
   position: relative;
-  min-height: 100svh;
+  height: calc(100vh + 170vh * var(--motion));
+  height: calc(100svh + 170vh * var(--motion));
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
   display: flex;
   align-items: flex-end;
   padding: 7rem var(--gutter) clamp(2.5rem, 6vh, 4.5rem);
@@ -8,27 +32,42 @@
   color: var(--c-paper);
   overflow: hidden;
   isolation: isolate;
+
+  --break: clamp(0, calc(var(--scene, 0) / 0.6), 1);
+  --crack: calc(var(--break) * var(--break));
+  --clear: clamp(0, calc((var(--scene, 0) - 0.62) / 0.38), 1);
 }
 
-/* ---- Parallax backdrop ---------------------------------------------- */
+/* ---- Backdrop --------------------------------------------------------- */
 .backdrop {
   position: absolute;
-  inset: -12% -5% 0 -5%;
-  z-index: -1;
-  transform: translate3d(0, var(--parallax-y, 0px), 0);
-  color: var(--c-signal-soft);
-}
-
-.grid {
-  position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--c-paper) 5%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--c-paper) 5%, transparent) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: radial-gradient(120% 80% at 20% 0%, #000 20%, transparent 78%);
+  z-index: -1;
 }
 
+/* Flat blueprint grid at rest; scroll tips it over into a perspective
+   floor, as if the ground the headline stood on gives way. */
+.floor {
+  position: absolute;
+  inset: -35% -25% -12%;
+  background-image:
+    linear-gradient(
+      color-mix(in srgb, var(--c-paper) calc(5% + var(--break) * 6%), transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--c-paper) calc(5% + var(--break) * 6%), transparent) 1px,
+      transparent 1px
+    );
+  background-size: 72px 72px;
+  mask-image: radial-gradient(120% 90% at 30% 10%, #000 25%, transparent 80%);
+  transform: perspective(1100px) rotateX(calc(var(--break) * 38deg * var(--motion)))
+    translateY(calc(var(--break) * -4vh * var(--motion)));
+  transform-origin: 50% 85%;
+}
+
+/* Healthy indigo light while everything holds together… */
 .glow {
   position: absolute;
   top: -20%;
@@ -42,28 +81,55 @@
     transparent 62%
   );
   filter: blur(24px);
-  opacity: 0.55;
+  opacity: calc(0.55 * (1 - var(--break)));
+  transform: translate3d(calc(var(--break) * 8vw * var(--motion)), calc(var(--break) * -6vh * var(--motion)), 0);
 }
 
-.wave {
+/* …and an amber warning that swells as the break progresses. */
+.alarm {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 8%;
-  width: 130%;
-  height: min(38vh, 20rem);
-  color: var(--c-pulse);
-  opacity: 0.32;
+  bottom: -25%;
+  left: -12%;
+  width: min(75vw, 50rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--c-warn) 45%, transparent),
+    transparent 60%
+  );
+  filter: blur(32px);
+  opacity: calc(var(--crack) * 0.5);
+  transform: scale(calc(0.8 + var(--crack) * 0.4));
 }
 
-/* ---- Content --------------------------------------------------------- */
+/* Giant outlined name, revealed behind the wreckage mid-scene. */
+.watermark {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(7rem, 28vw, 22rem);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--c-signal-soft) 55%, transparent);
+  letter-spacing: calc(0.02em + var(--break) * 0.12em);
+  transform: translate(-50%, -50%) scale(calc(0.9 + var(--break) * 0.28 * var(--motion)));
+  opacity: calc(var(--break) * 0.55 * var(--motion));
+}
+
+/* ---- Content ---------------------------------------------------------- */
 .content {
   position: relative;
   width: 100%;
   max-width: var(--content-max);
   margin-inline: auto;
-  transform: translate3d(0, calc(var(--parallax-y, 0px) * -1), 0);
-  opacity: calc(0.15 + var(--parallax-fade, 1) * 0.85);
+  /* The exit: once broken, the remains lift away and hand over. */
+  transform: translate3d(0, calc(var(--clear) * -10vh * var(--motion)), 0);
+  opacity: calc(1 - var(--clear) * 0.92);
 }
 
 .kicker {
@@ -73,7 +139,7 @@
   gap: var(--s-2) var(--s-4);
   font-family: var(--font-mono);
   font-size: var(--t-xs);
-  letter-spacing: var(--tracking-wide);
+  letter-spacing: calc(var(--tracking-wide) + var(--break) * 0.14em * var(--motion));
   text-transform: uppercase;
   margin-bottom: clamp(1.25rem, 3vw, 2rem);
   animation: fadeUp calc(700ms * var(--motion)) var(--ease-out) both;
@@ -94,30 +160,74 @@
   max-width: 16ch;
 }
 
+/* Each line is masked for the entrance rise; the mask itself is what the
+   scroll break throws sideways, so the two transforms never fight. */
 .lineMask {
+  --dir: -1;
   display: block;
   overflow: hidden;
   padding-bottom: 0.06em;
+  transform: translate3d(
+      calc(var(--dir) * var(--crack) * 26vw * var(--motion)),
+      calc(var(--crack) * var(--line-index, 0) * -1.5vh * var(--motion)),
+      0
+    )
+    rotate(calc(var(--dir) * var(--crack) * -4deg * var(--motion)));
+}
+
+.lineMask:nth-child(2) {
+  --dir: 0.85;
+}
+
+.lineMask:nth-child(3) {
+  --dir: -0.55;
 }
 
 .line {
+  position: relative;
   display: block;
   transform: translate3d(0, 110%, 0);
   animation: riseIn calc(1100ms * var(--motion)) var(--ease-out) both;
-  animation-delay: calc(var(--line-index) * 120ms * var(--motion));
+  animation-delay: calc(var(--line-index, 0) * 120ms * var(--motion));
+  letter-spacing: calc(-0.04em + var(--break) * 0.04em * var(--motion));
+  opacity: calc(1 - var(--crack) * 0.35);
 }
 
-.line:nth-child(2) {
+.lineMask:nth-child(2) .line {
   color: var(--c-signal-soft);
 }
 
-/* ---- Status strip ---------------------------------------------------- */
+/* Chromatic shear: teal and amber ghosts split off the line, loudest in
+   the middle of the break and gone at either end — a bell curve in calc. */
+.line::before,
+.line::after {
+  content: attr(data-text) / '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(var(--break) * (1 - var(--break)) * 2.1 * var(--motion));
+}
+
+.line::before {
+  color: var(--c-pulse);
+  clip-path: inset(0 0 52% 0);
+  transform: translate3d(calc(var(--dir) * -0.2em * var(--break)), calc(-0.03em * var(--break)), 0);
+}
+
+.line::after {
+  color: var(--c-warn);
+  clip-path: inset(58% 0 0 0);
+  transform: translate3d(calc(var(--dir) * 0.16em * var(--break)), calc(0.025em * var(--break)), 0);
+}
+
+/* ---- Status strip ----------------------------------------------------- */
 .stats {
   display: grid;
   gap: var(--s-4);
   margin: clamp(2rem, 5vw, 3.25rem) 0 0;
   padding-top: var(--s-5);
   border-top: 1px solid #2a313d;
+  transform: translate3d(0, calc(var(--crack) * 2.5vh * var(--motion)), 0);
 }
 
 .stat {
@@ -141,19 +251,27 @@
   max-width: 34ch;
 }
 
-/* ---- Scroll cue ------------------------------------------------------ */
+/* ---- Console: scroll cue + integrity gauge ---------------------------- */
+.console {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3) var(--s-6);
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+
 .cue {
   display: inline-flex;
   align-items: center;
   gap: var(--s-3);
-  margin-top: clamp(2rem, 5vw, 3rem);
   font-family: var(--font-mono);
   font-size: var(--t-xs);
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: #8c94a4;
   text-decoration: none;
-  opacity: var(--parallax-fade, 1);
+  opacity: calc(1 - var(--crack) * var(--motion));
 }
 
 .cueLine {
@@ -166,6 +284,33 @@
 
 .cue:hover .cueLine {
   animation-play-state: paused;
+}
+
+/* Drains from full teal to empty amber as the headline is dismantled. */
+.gauge {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: #8c94a4;
+}
+
+.gaugeTrack {
+  display: block;
+  width: clamp(6rem, 18vw, 12rem);
+  height: 2px;
+  background: #2a313d;
+}
+
+.gaugeFill {
+  display: block;
+  height: 100%;
+  transform-origin: left;
+  transform: scaleX(calc(1 - var(--break) * var(--motion)));
+  background: color-mix(in srgb, var(--c-pulse) calc((1 - var(--break)) * 100%), var(--c-warn));
 }
 
 @keyframes riseIn {
@@ -205,6 +350,12 @@
 @media (prefers-reduced-motion: reduce) {
   .line {
     transform: none;
+    opacity: 1;
+  }
+
+  .line::before,
+  .line::after {
+    content: none;
   }
 
   .content,
@@ -215,5 +366,9 @@
   .cueLine {
     animation: none;
     transform: scaleX(1);
+  }
+
+  .watermark {
+    opacity: 0;
   }
 }

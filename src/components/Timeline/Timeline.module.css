@@ -1,0 +1,35 @@
+.wrap {
+  position: relative;
+}
+
+.track {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 1px;
+  background: linear-gradient(180deg, var(--c-signal-soft), var(--c-pulse));
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform calc(1600ms * var(--motion)) var(--ease-out);
+}
+
+.wrap[data-visible='true'] .track {
+  transform: scaleY(1);
+}
+
+.list {
+  display: block;
+}
+
+@media (min-width: 900px) {
+  .track {
+    left: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    transform: scaleY(1);
+  }
+}

@@ -1,0 +1,45 @@
+.reveal {
+  opacity: 0;
+  transition:
+    opacity calc(var(--dur-slow) * var(--motion)) var(--ease-out),
+    transform calc(var(--dur-slow) * var(--motion)) var(--ease-out),
+    clip-path calc(var(--dur-slow) * var(--motion)) var(--ease-out);
+  transition-delay: calc(var(--reveal-delay, 0ms) * var(--motion));
+  will-change: transform, opacity;
+}
+
+.reveal[data-visible='true'] {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 0 0);
+  will-change: auto;
+}
+
+.up {
+  transform: translate3d(0, 2.25rem, 0);
+}
+
+.left {
+  transform: translate3d(-2rem, 0, 0);
+}
+
+.right {
+  transform: translate3d(2rem, 0, 0);
+}
+
+.fade {
+  transform: none;
+}
+
+.clip {
+  clip-path: inset(0 0 100% 0);
+  transform: translate3d(0, 1rem, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}

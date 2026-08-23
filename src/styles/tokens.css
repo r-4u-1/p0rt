@@ -1,0 +1,93 @@
+/**
+ * Design tokens — the single source of truth for colour, type and rhythm.
+ * Components never hard-code a hex value; they consume these variables.
+ */
+
+:root {
+  /* ---- Colour ------------------------------------------------------- */
+  --c-ink: #0e1116; /* deep slate, near-black but blue-leaning */
+  --c-ink-soft: #1b2029;
+  --c-paper: #edeff3; /* cool paper, deliberately not cream */
+  --c-paper-raised: #f7f8fa;
+  --c-haze: #c7ccd8; /* hairlines, dividers */
+  --c-muted: #5c6472;
+  --c-signal: #4a2be8; /* primary accent — electric indigo */
+  --c-signal-soft: #7b63f0;
+  --c-pulse: #12b8a0; /* secondary accent — instrument teal */
+  --c-warn: #e8a72b;
+
+  /* Surface-aware aliases, flipped by [data-surface="ink"] below */
+  --surface-bg: var(--c-paper);
+  --surface-fg: var(--c-ink);
+  --surface-muted: var(--c-muted);
+  --surface-line: var(--c-haze);
+
+  /* ---- Type --------------------------------------------------------- */
+  --font-display: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif;
+  --font-body: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --t-xs: 0.75rem;
+  --t-sm: 0.875rem;
+  --t-base: 1rem;
+  --t-lg: clamp(1.0625rem, 0.4vw + 1rem, 1.1875rem);
+  --t-xl: clamp(1.3rem, 1vw + 1rem, 1.6rem);
+  --t-2xl: clamp(1.7rem, 2vw + 1rem, 2.5rem);
+  --t-3xl: clamp(2.2rem, 4vw + 1rem, 4rem);
+  --t-display: clamp(2.75rem, 11vw, 9.5rem);
+
+  --lh-tight: 1.02;
+  --lh-snug: 1.22;
+  --lh-body: 1.62;
+  --tracking-wide: 0.18em;
+
+  /* ---- Space (4px base) --------------------------------------------- */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4.5rem;
+  --s-9: 7rem;
+
+  --section-pad-block: clamp(4rem, 10vw, 8.5rem);
+  --gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --measure: 62ch;
+  --content-max: 1180px;
+
+  /* ---- Form --------------------------------------------------------- */
+  --radius-sm: 3px;
+  --radius-md: 10px;
+  --radius-lg: 20px;
+  --rail-w: 2px;
+
+  /* ---- Motion ------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur-mid: 420ms;
+  --dur-slow: 900ms;
+
+  /* Set to 0 by the reduced-motion query; multiplied into every duration
+     so one switch disables all decorative motion. */
+  --motion: 1;
+
+  --z-nav: 60;
+  --z-rail: 40;
+  --z-overlay: 55;
+}
+
+[data-surface='ink'] {
+  --surface-bg: var(--c-ink);
+  --surface-fg: var(--c-paper);
+  --surface-muted: #8c94a4;
+  --surface-line: #2a313d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion: 0;
+  }
+}

@@ -1,0 +1,36 @@
+name: Visual regression
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  percy:
+    name: Percy snapshots
+    runs-on: ubuntu-latest
+    # Percy needs a token; forks do not get one, so skip rather than fail.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Snapshot flows
+        run: npm run percy
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}

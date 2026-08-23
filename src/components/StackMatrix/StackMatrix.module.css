@@ -1,0 +1,121 @@
+.groups {
+  display: grid;
+  gap: clamp(2rem, 4vw, 3rem);
+}
+
+.group {
+  padding-top: var(--s-5);
+  border-top: 2px solid var(--c-ink);
+}
+
+.groupTitle {
+  font-size: var(--t-xl);
+}
+
+.groupCaption {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  margin-top: var(--s-2);
+}
+
+.skills {
+  display: grid;
+  gap: var(--s-5);
+  margin-top: var(--s-6);
+}
+
+.skill {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.skillHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.skillName {
+  font-weight: 600;
+  font-size: var(--t-base);
+}
+
+.skillLevel {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.skillLevel[data-level='core'] {
+  color: var(--c-signal);
+}
+
+.skillLevel[data-level='exploring'] {
+  color: #a5700f;
+}
+
+.skillNote {
+  font-size: var(--t-sm);
+  color: var(--c-muted);
+}
+
+.bar {
+  display: block;
+  height: 3px;
+  background: color-mix(in srgb, var(--c-haze) 70%, transparent);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--c-ink);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform calc(var(--dur-slow) * var(--motion)) var(--ease-out);
+  transition-delay: calc(var(--skill-index) * 70ms * var(--motion));
+}
+
+.barFill[data-level='core'] {
+  background: linear-gradient(90deg, var(--c-signal), var(--c-signal-soft));
+}
+
+.barFill[data-level='exploring'] {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--c-warn) 0 6px,
+    transparent 6px 10px
+  );
+}
+
+.group[data-visible='true'] .barFill {
+  transform: scaleX(var(--fill, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barFill {
+    transform: scaleX(var(--fill, 1));
+  }
+}
+
+@media (min-width: 720px) {
+  .groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1080px) {
+  .groups {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s-6);
+  }
+}

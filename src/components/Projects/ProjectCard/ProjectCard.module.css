@@ -1,0 +1,98 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  background: var(--c-paper-raised);
+  border: 1px solid var(--c-haze);
+  border-radius: var(--radius-md);
+  transition:
+    transform calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+    border-color calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+    box-shadow calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--c-signal);
+  box-shadow: 0 14px 34px -22px rgba(14, 17, 22, 0.55);
+}
+
+.name {
+  font-size: var(--t-lg);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Makes the whole card the hit area while keeping one real link. */
+.link {
+  text-decoration: none;
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.description {
+  font-size: var(--t-sm);
+  color: var(--c-muted);
+  flex: 1;
+}
+
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.topic {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c-signal) 10%, transparent);
+  color: var(--c-signal);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-4);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--c-haze);
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--c-muted);
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

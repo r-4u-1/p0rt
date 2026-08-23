@@ -1,0 +1,107 @@
+/* ---- Mobile: hairline progress bar under the header ------------------ */
+.spine {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: var(--z-rail);
+  pointer-events: none;
+}
+
+.rail {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--c-haze) 45%, transparent);
+}
+
+.fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: linear-gradient(90deg, var(--c-signal), var(--c-pulse));
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+}
+
+.nodes {
+  display: none;
+}
+
+/* ---- Desktop: vertical spine with section markers -------------------- */
+@media (min-width: 1100px) {
+  .spine {
+    top: 50%;
+    bottom: auto;
+    left: clamp(1rem, 2.4vw, 2.25rem);
+    right: auto;
+    height: min(46vh, 26rem);
+    width: 12rem;
+    transform: translateY(-50%);
+  }
+
+  .rail {
+    inset: 0 auto 0 0;
+    width: var(--rail-w);
+  }
+
+  .fill {
+    inset: 0 0 auto 0;
+    height: 100%;
+    background: linear-gradient(180deg, var(--c-signal), var(--c-pulse));
+    transform: scaleY(var(--progress, 0));
+    transform-origin: top center;
+  }
+
+  .nodes {
+    display: block;
+    position: relative;
+    height: 100%;
+  }
+
+  .node {
+    position: absolute;
+    top: var(--node-position);
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    transform: translate(-40%, -50%);
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--c-haze);
+    flex: none;
+    transition:
+      transform calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+      background calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+    opacity: 0;
+    transform: translateX(-0.4rem);
+    transition:
+      opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+      transform calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+    white-space: nowrap;
+  }
+
+  .node[data-active='true'] .dot {
+    background: var(--c-signal);
+    transform: scale(1.9);
+  }
+
+  .node[data-active='true'] .label {
+    opacity: 1;
+    transform: none;
+    color: var(--c-ink);
+  }
+}

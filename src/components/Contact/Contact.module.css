@@ -1,0 +1,122 @@
+.footer {
+  background: var(--c-ink);
+  color: var(--c-paper);
+  padding: var(--section-pad-block) var(--gutter) var(--s-6);
+}
+
+.inner {
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--c-pulse);
+  margin-bottom: var(--s-4);
+}
+
+.headline {
+  font-size: var(--t-3xl);
+  max-width: 16ch;
+  letter-spacing: -0.03em;
+}
+
+.lead {
+  margin-top: var(--s-4);
+  max-width: var(--measure);
+  color: #9aa2b1;
+}
+
+.channels {
+  display: grid;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+  border-top: 1px solid #2a313d;
+}
+
+.channel {
+  border-bottom: 1px solid #2a313d;
+}
+
+.channelLink {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: var(--s-1) var(--s-4);
+  padding-block: var(--s-5);
+  text-decoration: none;
+  transition: padding-inline-start calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+}
+
+.channelLink:hover {
+  padding-inline-start: var(--s-3);
+}
+
+.channelLabel {
+  grid-column: 1;
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8c94a4;
+}
+
+.channelValue {
+  grid-column: 1;
+  grid-row: 2;
+  font-family: var(--font-display);
+  font-size: var(--t-xl);
+  word-break: break-word;
+}
+
+.arrow {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--c-pulse);
+  transition: transform calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+}
+
+.channelLink:hover .arrow {
+  transform: translateX(0.35rem);
+}
+
+.colophon {
+  margin-top: clamp(3rem, 7vw, 5rem);
+  padding-top: var(--s-5);
+  border-top: 1px solid #2a313d;
+  display: grid;
+  gap: var(--s-5);
+}
+
+.built {
+  font-size: var(--t-sm);
+  color: #7d8493;
+  max-width: 58ch;
+}
+
+.bottomRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copy,
+.top {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  color: #7d8493;
+}
+
+.top {
+  text-decoration: none;
+}
+
+.top:hover {
+  color: var(--c-pulse);
+}

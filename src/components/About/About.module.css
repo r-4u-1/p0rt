@@ -1,0 +1,88 @@
+.layout {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3.5rem);
+}
+
+.prose {
+  display: grid;
+  gap: var(--s-5);
+  max-width: var(--measure);
+}
+
+.paragraph {
+  font-size: var(--t-lg);
+  color: #2c3340;
+}
+
+.paragraph:first-child::first-line {
+  font-weight: 600;
+}
+
+.card {
+  align-self: start;
+  background: var(--c-ink);
+  color: var(--c-paper);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+.cardTitle {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--c-pulse);
+  margin-bottom: var(--s-5);
+}
+
+.facts {
+  display: grid;
+  gap: var(--s-4);
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  gap: 2px;
+  padding-bottom: var(--s-4);
+  border-bottom: 1px solid #2a313d;
+}
+
+.fact dt {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8c94a4;
+}
+
+.fact dd {
+  margin: 0;
+  font-size: var(--t-base);
+}
+
+.availability {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+  font-family: var(--font-mono);
+  font-size: var(--t-sm);
+  color: var(--c-pulse);
+}
+
+.pip {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr);
+    align-items: start;
+  }
+}

@@ -1,0 +1,14 @@
+version: 2
+snapshot:
+  widths: [375, 768, 1440]
+  min-height: 1024
+  percy-css: |
+    /* Freeze motion so snapshots are deterministic. */
+    *, *::before, *::after {
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+    }
+discovery:
+  network-idle-timeout: 750

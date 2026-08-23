@@ -1,5 +1,17 @@
-/* ---- Mobile: hairline progress bar under the header ------------------ */
+/*
+ * The component root is deliberately left unpositioned and un-z-indexed.
+ * A fixed or stacked root would form a stacking context, and the marker
+ * layer below would then blend against the spine's own empty backdrop
+ * instead of the page behind it. The two layers position themselves, and
+ * the root exists only to carry --progress and the shared geometry down.
+ */
 .spine {
+  --spine-inset: clamp(1rem, 2.4vw, 2.25rem);
+  --spine-length: min(46vh, 26rem);
+}
+
+/* ---- Mobile: hairline progress bar under the header ------------------ */
+.rail {
   position: fixed;
   top: 0;
   left: 0;
@@ -7,11 +19,6 @@
   height: 3px;
   z-index: var(--z-rail);
   pointer-events: none;
-}
-
-.rail {
-  position: absolute;
-  inset: 0;
   background: color-mix(in srgb, var(--c-haze) 45%, transparent);
 }
 
@@ -30,19 +37,13 @@
 
 /* ---- Desktop: vertical spine with section markers -------------------- */
 @media (min-width: 1100px) {
-  .spine {
-    top: 50%;
-    bottom: auto;
-    left: clamp(1rem, 2.4vw, 2.25rem);
-    right: auto;
-    height: min(46vh, 26rem);
-    width: 12rem;
-    transform: translateY(-50%);
-  }
-
   .rail {
-    inset: 0 auto 0 0;
+    top: 50%;
+    left: var(--spine-inset);
+    right: auto;
+    height: var(--spine-length);
     width: var(--rail-w);
+    transform: translateY(-50%);
   }
 
   .fill {
@@ -53,10 +54,29 @@
     transform-origin: top center;
   }
 
+  /*
+   * The markers ride over sections that alternate between paper and ink,
+   * so they invert against whatever they happen to be crossing rather
+   * than committing to one colour. `difference` returns |backdrop − source|,
+   * which for a white source is the exact inverse of the backdrop: every
+   * marker below is therefore white or near-white, resolving to near-black
+   * over the paper sections and near-white over the ink ones with no
+   * per-section bookkeeping and nothing to keep in sync.
+   *
+   * Only this layer blends. The rail keeps normal compositing so the
+   * indigo-to-teal progress gradient stays the colour it was designed as.
+   */
   .nodes {
     display: block;
-    position: relative;
-    height: 100%;
+    position: fixed;
+    top: 50%;
+    left: var(--spine-inset);
+    height: var(--spine-length);
+    width: 12rem;
+    transform: translateY(-50%);
+    z-index: var(--z-rail);
+    pointer-events: none;
+    mix-blend-mode: difference;
   }
 
   .node {
@@ -85,7 +105,7 @@
     font-size: 0.6875rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--c-muted);
+    color: #fff;
     opacity: 0;
     transform: translateX(-0.4rem);
     transition:
@@ -95,13 +115,12 @@
   }
 
   .node[data-active='true'] .dot {
-    background: var(--c-signal);
+    background: #fff;
     transform: scale(1.9);
   }
 
   .node[data-active='true'] .label {
     opacity: 1;
     transform: none;
-    color: var(--c-ink);
   }
 }

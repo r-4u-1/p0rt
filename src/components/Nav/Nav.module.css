@@ -9,16 +9,32 @@
   padding: var(--s-4) var(--gutter);
   color: var(--c-paper);
   transition:
-    background calc(var(--dur-mid) * var(--motion)) var(--ease-out),
     padding calc(var(--dur-mid) * var(--motion)) var(--ease-out),
     color calc(var(--dur-mid) * var(--motion)) var(--ease-out);
 }
 
-.condensed {
+/* The condensed bar's glass lives on a pseudo-element. backdrop-filter on
+   the header itself would make it the containing block for fixed-position
+   descendants, which re-anchors the mobile panel to the bar instead of the
+   viewport and clips the menu once the page is scrolled. */
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: color-mix(in srgb, var(--c-ink) 86%, transparent);
   backdrop-filter: blur(10px);
-  padding-block: var(--s-3);
   border-bottom: 1px solid #262d38;
+  opacity: 0;
+  transition: opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+}
+
+.condensed {
+  padding-block: var(--s-3);
+}
+
+.condensed::before {
+  opacity: 1;
 }
 
 /* ---- Brand ---------------------------------------------------------- */
@@ -72,6 +88,22 @@
   text-transform: uppercase;
   cursor: pointer;
   z-index: var(--z-nav);
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background calc(var(--dur-fast) * var(--motion)) var(--ease-out),
+    border-color calc(var(--dur-fast) * var(--motion)) var(--ease-out),
+    transform calc(var(--dur-fast) * var(--motion)) var(--ease-out);
+}
+
+.toggle:active {
+  transform: scale(0.96);
+}
+
+@media (hover: hover) {
+  .toggle:hover {
+    background: color-mix(in srgb, var(--c-paper) 18%, transparent);
+    border-color: color-mix(in srgb, var(--c-pulse) 60%, transparent);
+  }
 }
 
 .bars {
@@ -139,6 +171,7 @@
 }
 
 .link {
+  position: relative;
   display: inline-flex;
   align-items: baseline;
   gap: var(--s-4);
@@ -147,16 +180,71 @@
   font-size: var(--t-2xl);
   text-decoration: none;
   color: var(--c-paper);
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color calc(var(--dur-fast) * var(--motion)) var(--ease-out),
+    transform calc(var(--dur-fast) * var(--motion)) var(--ease-out);
 }
 
 .linkIndex {
   font-family: var(--font-mono);
   font-size: var(--t-xs);
   color: var(--c-signal-soft);
+  transition: color calc(var(--dur-fast) * var(--motion)) var(--ease-out);
 }
 
 .link[aria-current='true'] {
   color: var(--c-pulse);
+}
+
+/* ---- Panel link states -----------------------------------------------
+   Scoped to the open panel, so these describe the mobile menu only: the
+   desktop bar never carries data-open="true" and owns the pill treatment
+   in the breakpoint below. A touch needs the same feedback a cursor gets,
+   so :active carries the press state and the tap highlight is suppressed
+   in favour of it. */
+.panel[data-open='true'] .link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.1em;
+  height: 2px;
+  background: var(--c-pulse);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+}
+
+.panel[data-open='true'] .link:active,
+.panel[data-open='true'] .link:focus-visible {
+  color: var(--c-pulse);
+  transform: translateX(0.4rem);
+}
+
+.panel[data-open='true'] .link:active::after,
+.panel[data-open='true'] .link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.panel[data-open='true'] .link:active .linkIndex,
+.panel[data-open='true'] .link:focus-visible .linkIndex {
+  color: var(--c-pulse);
+}
+
+@media (hover: hover) {
+  .panel[data-open='true'] .link:hover {
+    color: var(--c-pulse);
+    transform: translateX(0.4rem);
+  }
+
+  .panel[data-open='true'] .link:hover::after {
+    transform: scaleX(1);
+  }
+
+  .panel[data-open='true'] .link:hover .linkIndex {
+    color: var(--c-pulse);
+  }
 }
 
 /* ---- Desktop -------------------------------------------------------- */

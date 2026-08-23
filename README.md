@@ -44,7 +44,7 @@ src/
 │   ├── Projects/        container + ProjectCard/ presentation child
 │   ├── Timeline/        animated history + TimelineItem/ child
 │   └── …                About, StackMatrix, Approach, Exploring, Contact, SkipLink
-├── hooks/               useInView, useScrollScene, useScrollProgress, useActiveSection…
+├── hooks/               useInView, useScrollScene, useSectionProgress, useActiveSection…
 ├── services/            data sources behind an interface
 ├── data/                all editable content
 ├── types/               domain model — no React, no DOM
@@ -81,7 +81,9 @@ Three primitives cover every effect on the page:
 - `useScrollScene` — writes `--scene` (0 → 1 progress through a pinned section) to the
   element and lets CSS choreograph the whole scene from that one number. Coalesced to one
   write per animation frame. The hero's break-apart sequence runs entirely on it.
-- `useScrollProgress` — document progress as 0→1, driving the spine.
+- `useSectionProgress` — reading progress as 0→1, driving the spine. Measured in *section*
+  space, not document space: the spine spaces its markers evenly, so raw scroll position
+  would run a fifth of the rail ahead of them over the pinned hero alone.
 
 Every transition duration is multiplied by `var(--motion)`, which
 `@media (prefers-reduced-motion: reduce)` sets to `0`. One switch, whole page.

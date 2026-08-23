@@ -79,25 +79,16 @@
     mix-blend-mode: difference;
   }
 
+  /*
+   * Offset clear of the rail rather than by a percentage: a percentage would
+   * resolve against the label's own width, which differs per section and
+   * would leave the column ragged.
+   */
   .node {
     position: absolute;
     top: var(--node-position);
-    left: 0;
-    display: flex;
-    align-items: center;
-    gap: var(--s-3);
-    transform: translate(-40%, -50%);
-  }
-
-  .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--c-haze);
-    flex: none;
-    transition:
-      transform calc(var(--dur-mid) * var(--motion)) var(--ease-out),
-      background calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+    left: calc(var(--rail-w) + var(--s-3));
+    transform: translateY(-50%);
   }
 
   .label {
@@ -112,11 +103,6 @@
       opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out),
       transform calc(var(--dur-mid) * var(--motion)) var(--ease-out);
     white-space: nowrap;
-  }
-
-  .node[data-active='true'] .dot {
-    background: #fff;
-    transform: scale(1.9);
   }
 
   .node[data-active='true'] .label {

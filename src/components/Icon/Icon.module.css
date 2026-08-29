@@ -1,0 +1,115 @@
+/*
+ * Draw-on, inverted.
+ *
+ * The resting state is *drawn*: a shape only retracts while an ancestor is
+ * explicitly marked `[data-visible='false']`. Gating it the other way round
+ * — hidden until something says otherwise — means a headless renderer, a
+ * background tab or a missing IntersectionObserver ships blank icons,
+ * because transitions never fire there. This way the failure mode is
+ * "no animation", not "no icon".
+ *
+ * `pathLength="1"` on every shape (see Icon.tsx) is what lets a single
+ * dasharray drive shapes of wildly different real lengths at one rate.
+ */
+
+.icon {
+  display: block;
+  flex: none;
+  overflow: visible;
+  transition:
+    transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart),
+    color calc(var(--dur-fast) * var(--motion)) var(--ease-out);
+}
+
+.shape {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition:
+    stroke-dashoffset calc(760ms * var(--motion)) var(--ease-out-quart),
+    opacity calc(160ms * var(--motion)) linear;
+  transition-delay: calc(var(--shape-index, 0) * 105ms * var(--motion));
+}
+
+[data-visible='false'] .shape {
+  stroke-dashoffset: 1;
+  opacity: 0;
+  /* Retracting is instant; only the arrival is choreographed. */
+  transition-duration: 0ms;
+  transition-delay: 0ms;
+}
+
+/* ---- Hover and tap ----------------------------------------------------
+ * Triggered from the nearest ancestor carrying `data-ico-host`, so a card,
+ * a link and a list row all drive their icon without the icon knowing which
+ * of them it sits in.
+ * ---------------------------------------------------------------------- */
+
+[data-ico-host]:active .icon {
+  transform: scale(0.92);
+  transition-duration: calc(var(--dur-tap) * var(--motion));
+}
+
+@media (hover: hover) {
+  [data-ico-host]:hover .icon[data-motion='spin'],
+  [data-ico-host]:focus-within .icon[data-motion='spin'] {
+    transform: rotate(72deg);
+  }
+
+  [data-ico-host]:hover .icon[data-motion='nudge'],
+  [data-ico-host]:focus-within .icon[data-motion='nudge'] {
+    transform: translate3d(0.18em, -0.18em, 0);
+  }
+
+  /* Re-draws itself: the outline wipes away and returns, once. */
+  [data-ico-host]:hover .icon[data-motion='trace'] .shape,
+  [data-ico-host]:focus-within .icon[data-motion='trace'] .shape {
+    animation: retrace calc(900ms * var(--motion)) var(--ease-out-quart) both;
+    animation-delay: calc(var(--shape-index, 0) * 70ms * var(--motion));
+  }
+
+  /* The trace runs the length of the line, like a reading on an instrument. */
+  [data-ico-host]:hover .icon[data-motion='pulse'] .shape,
+  [data-ico-host]:focus-within .icon[data-motion='pulse'] .shape {
+    animation: sweep calc(1200ms * var(--motion)) var(--ease-inout) infinite;
+  }
+}
+
+@keyframes retrace {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  38% {
+    stroke-dashoffset: -1;
+  }
+  39% {
+    stroke-dashoffset: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sweep {
+  0% {
+    stroke-dasharray: 0.22 0.78;
+    stroke-dashoffset: 0.22;
+  }
+  100% {
+    stroke-dasharray: 0.22 0.78;
+    stroke-dashoffset: -0.78;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shape,
+  [data-visible='false'] .shape {
+    stroke-dashoffset: 0;
+    opacity: 1;
+    animation: none;
+  }
+
+  .icon {
+    transform: none;
+  }
+}

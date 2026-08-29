@@ -46,6 +46,7 @@
   font-family: var(--font-mono);
   font-size: var(--t-sm);
   letter-spacing: 0.04em;
+  transition: transform calc(var(--dur-tap) * var(--motion)) var(--ease-out);
 }
 
 .brandMark {
@@ -71,6 +72,15 @@
 
 .brandText {
   font-weight: 600;
+  transition: color calc(var(--dur-fast) * var(--motion)) var(--ease-out);
+}
+
+.brand:hover .brandText {
+  color: var(--c-pulse);
+}
+
+.brand:active {
+  transform: scale(0.97);
 }
 
 /* ---- Toggle (mobile) ------------------------------------------------ */
@@ -301,8 +311,18 @@
   }
 
   .link:hover::after,
+  .link:focus-visible::after,
   .link[aria-current='true']::after {
     transform: scaleX(1);
+  }
+
+  .link:hover {
+    color: var(--c-pulse);
+  }
+
+  .link:active {
+    transform: translateY(1px);
+    transition-duration: calc(var(--dur-tap) * var(--motion));
   }
 
   .linkIndex {

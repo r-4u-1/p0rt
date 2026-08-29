@@ -52,6 +52,81 @@ describe('useInView', () => {
     expect(screen.getByTestId('probe')).toHaveAttribute('data-in-view', 'false');
   });
 
+  /*
+   * The page hides its content until this hook says otherwise, so silence
+   * from the observer has to be treated as a failure rather than as "not
+   * yet". A hidden tab, a prerender or a headless renderer never delivers an
+   * intersection *and* never runs a transition, which without the failsafe
+   * ships the whole page blank with nothing in the console to explain it.
+   */
+  describe('failsafe', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      document.documentElement.removeAttribute('data-reveal-fallback');
+    });
+
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+      document.documentElement.removeAttribute('data-reveal-fallback');
+    });
+
+    it('reveals anyway when the observer never reports', () => {
+      render(<Probe />);
+      expect(screen.getByTestId('probe')).toHaveAttribute('data-in-view', 'false');
+
+      act(() => {
+        jest.advanceTimersByTime(1600);
+      });
+
+      expect(screen.getByTestId('probe')).toHaveAttribute('data-in-view', 'true');
+    });
+
+    it('flags the document so the stylesheet can drop the transitions too', () => {
+      render(<Probe />);
+
+      act(() => {
+        jest.advanceTimersByTime(1600);
+      });
+
+      expect(document.documentElement).toHaveAttribute('data-reveal-fallback', 'true');
+    });
+
+    it('stands down as soon as the observer reports at all, even a miss', () => {
+      render(<Probe />);
+
+      act(() => triggerIntersection(false));
+      act(() => {
+        jest.advanceTimersByTime(5000);
+      });
+
+      expect(screen.getByTestId('probe')).toHaveAttribute('data-in-view', 'false');
+      expect(document.documentElement).not.toHaveAttribute('data-reveal-fallback');
+    });
+
+    it('can be switched off', () => {
+      render(<Probe failsafeMs={0} />);
+
+      act(() => {
+        jest.advanceTimersByTime(10_000);
+      });
+
+      expect(screen.getByTestId('probe')).toHaveAttribute('data-in-view', 'false');
+    });
+
+    it('does not fire after the element has unmounted', () => {
+      const { unmount } = render(<Probe />);
+      unmount();
+
+      expect(() =>
+        act(() => {
+          jest.advanceTimersByTime(5000);
+        }),
+      ).not.toThrow();
+      expect(document.documentElement).not.toHaveAttribute('data-reveal-fallback');
+    });
+  });
+
   it('shows content immediately where IntersectionObserver is unavailable', () => {
     const original = window.IntersectionObserver;
     // @ts-expect-error deliberately removing the API to exercise the fallback

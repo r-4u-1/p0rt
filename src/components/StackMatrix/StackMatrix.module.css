@@ -1,4 +1,23 @@
-.groups {
+/*
+ * Two layouts from one markup tree.
+ *
+ * Narrow / short / reduced-motion  → an ordinary responsive grid.
+ * Wide and tall                    → a pinned rail that travels sideways.
+ *
+ * The switch is done entirely in the media queries at the bottom: the base
+ * rules below describe the grid, because that is the version that has to
+ * work everywhere. Nothing about the horizontal mode leaks into it.
+ */
+
+.runway {
+  position: relative;
+}
+
+.viewport {
+  position: relative;
+}
+
+.track {
   display: grid;
   gap: clamp(2rem, 4vw, 3rem);
 }
@@ -6,10 +25,25 @@
 .group {
   padding-top: var(--s-5);
   border-top: 2px solid var(--c-ink);
+  /* Scrubbed by the horizontal mode; 1 means "fully arrived" everywhere else. */
+  --arrive: 1;
 }
 
-.groupTitle {
+/* There is nothing to traverse in the stacked grid, so the readout only
+   exists in the horizontal mode that turns it on. */
+.readout {
+  display: none;
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
   font-size: var(--t-xl);
+}
+
+.groupIcon {
+  color: var(--c-signal);
 }
 
 .groupCaption {
@@ -81,7 +115,7 @@
   background: var(--c-ink);
   transform: scaleX(0);
   transform-origin: left center;
-  transition: transform calc(var(--dur-slow) * var(--motion)) var(--ease-out);
+  transition: transform calc(var(--dur-slow) * var(--motion)) var(--ease-out-quart);
   transition-delay: calc(var(--skill-index) * 70ms * var(--motion));
 }
 
@@ -90,15 +124,11 @@
 }
 
 .barFill[data-level='exploring'] {
-  background: repeating-linear-gradient(
-    90deg,
-    var(--c-warn) 0 6px,
-    transparent 6px 10px
-  );
+  background: repeating-linear-gradient(90deg, var(--c-warn) 0 6px, transparent 6px 10px);
 }
 
 .group[data-visible='true'] .barFill {
-  transform: scaleX(var(--fill, 1));
+  transform: scaleX(calc(var(--fill, 1) * var(--arrive)));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -108,14 +138,205 @@
 }
 
 @media (min-width: 720px) {
-  .groups {
+  .track {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1080px) {
-  .groups {
+  .track {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--s-6);
+  }
+}
+
+/* ---- Horizontal mode --------------------------------------------------
+ *
+ * Requires width for the rail to be worth traversing and height for the
+ * pinned panel to fit; a short laptop window would otherwise pin a panel
+ * taller than the screen, and the bottom of it could never be reached.
+ * `--motion: 0` cannot be tested in a media query, so the runway height is
+ * multiplied by it instead — at zero the section is exactly its own height,
+ * nothing sticks, and the grid rules below take over untouched.
+ * -------------------------------------------------------------------- */
+@media (min-width: 1000px) and (min-height: 660px) and (prefers-reduced-motion: no-preference) {
+  /*
+   * The runway is the pinned panel plus a spacer, and the panel is exactly
+   * one viewport tall pinned at top: 0. That is what makes `--scene` line up
+   * with the pin: useScrollScene reads 0 when the section's top hits the top
+   * of the screen — the same instant the panel sticks — and 1 when the
+   * section's bottom hits the bottom, which with a full-height sticky child
+   * is the same instant it releases. Any sticky offset would desynchronise
+   * the two, so the header clearance is padding *inside* the panel instead.
+   */
+  .runway::after {
+    content: '';
+    display: block;
+    height: calc(115vh * var(--motion));
+  }
+
+  .viewport {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(2rem, 5vh, 3.5rem);
+    padding-block: clamp(4rem, 9vh, 5.5rem) clamp(2rem, 5vh, 3.25rem);
+    /* The rail overhangs the content column on both sides; the section's
+       own gutter would otherwise slice the panels off mid-travel. */
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    overflow: hidden;
+    /*
+     * Feather the cut. A panel leaving the frame is sliced mid-word, and a
+     * hard edge reads as a clipping bug rather than as content continuing
+     * past the frame. The fade is short so nothing legible is washed out.
+     */
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 clamp(1.5rem, 4vw, 3.5rem),
+      #000 calc(100% - clamp(1.5rem, 4vw, 3.5rem)),
+      transparent 100%
+    );
+  }
+
+  /*
+   * The hero's blueprint floor, seen side-on and moving at a fraction of the
+   * rail's speed. It gives the pinned screen a depth cue that says "this is
+   * travelling sideways" before a single panel has moved, and fills the
+   * height that four short panels leave over without inventing content.
+   */
+  .viewport::before {
+    content: '';
+    position: absolute;
+    inset: -15% -25%;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--c-ink) 7%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--c-ink) 7%, transparent) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(115% 75% at 50% 50%, #000 22%, transparent 76%);
+    transform: translate3d(calc(var(--scene, 0) * -16vw), 0, 0);
+  }
+
+  .track,
+  .readout {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---- Traverse readout ---- */
+  .readout {
+    display: flex;
+    align-items: center;
+    gap: var(--s-4);
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--t-xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--c-muted);
+    order: 2;
+  }
+
+  .readoutRail {
+    flex: 1;
+    max-width: 22rem;
+    height: var(--rail-w);
+    background: color-mix(in srgb, var(--c-haze) 80%, transparent);
+    overflow: hidden;
+  }
+
+  .readoutFill {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--c-signal), var(--c-pulse));
+    transform: scaleX(var(--scene, 0));
+    transform-origin: left center;
+  }
+
+  .readoutLabel {
+    color: var(--c-signal);
+  }
+
+  .readoutCount {
+    color: var(--c-muted);
+  }
+
+  .track {
+    display: flex;
+    gap: var(--s-6);
+    width: max-content;
+    align-items: start;
+    order: 1;
+    /*
+     * Percentage translations resolve against the element's own width, so
+     * `100%` here is the full rail. Subtracting the visible width gives the
+     * exact overhang — no measurement in JS, and it stays correct when a
+     * group is added to the data.
+     */
+    --visible: min(var(--content-max), calc(100vw - 2 * var(--gutter)));
+    transform: translate3d(calc(var(--scene, 0) * (var(--visible) - 100%)), 0, 0);
+  }
+
+  /*
+   * Wide-format panels, not tall ones. Reflowing the skills into two columns
+   * does two jobs at once: it keeps a six-skill panel comfortably inside a
+   * pinned viewport that cannot scroll, and it makes the rail long enough
+   * that the traverse is roughly 1:1 with the scroll driving it. Narrow
+   * panels gave a rail barely wider than the screen — 300px of travel spread
+   * over a full screen of scrolling, which reads as a stutter, not a move.
+   */
+  .group {
+    width: clamp(27rem, 36vw, 34rem);
+    flex: none;
+    /*
+     * Each panel's own arrival, scrubbed from the shared `--scene`. Panel n
+     * fills across the slice of the runway where it is actually the one
+     * being read, so the bars are a readout of the traverse rather than a
+     * single burst when the section appears.
+     */
+    --arrive: clamp(0, calc((var(--scene, 0) - var(--panel-index, 0) * 0.2 + 0.06) / 0.26), 1);
+  }
+
+  /*
+   * Out-specifies Reveal's own `[data-visible='true'] { opacity: 1 }`, which
+   * sits on this very element. Both stylesheets have a legitimate claim on
+   * opacity here — Reveal owns the entrance, this owns the traverse — and
+   * whichever loaded last would otherwise win at random.
+   */
+  .track .group[data-visible] {
+    opacity: calc(0.4 + 0.6 * var(--arrive));
+    transition: opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+  }
+
+  .skills {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.25rem, 3.4vh, 2.25rem) var(--s-6);
+    margin-top: clamp(1.5rem, 4vh, 2.5rem);
+  }
+
+  .skill {
+    gap: var(--s-3);
+  }
+
+  .skillName {
+    font-size: var(--t-lg);
+  }
+
+  .groupHead {
+    font-size: var(--t-2xl);
+  }
+
+  .group {
+    padding-top: var(--s-6);
+  }
+
+  .groupIcon {
+    color: color-mix(in srgb, var(--c-signal) calc(40% + var(--arrive) * 60%), var(--c-muted));
   }
 }

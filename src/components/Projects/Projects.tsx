@@ -1,6 +1,9 @@
 import { Section } from '@/components/Section';
 import { Reveal } from '@/components/Reveal';
+import { Icon } from '@/components/Icon';
 import { useProjects } from '@/hooks/useProjects';
+import { useScrollProgress } from '@/hooks/useScrollProgress';
+import { usePointerSpot } from '@/hooks/usePointerSpot';
 import { useServices } from '@/services/ServicesContext';
 import { ProjectCard } from './ProjectCard';
 import styles from './Projects.module.css';
@@ -18,6 +21,8 @@ export interface ProjectsProps {
 export function Projects({ githubUser, limit = 6 }: ProjectsProps) {
   const { projectSource, fallbackSource } = useServices();
   const { status, projects, message } = useProjects(projectSource, fallbackSource, limit);
+  const driftRef = useScrollProgress<HTMLDivElement>();
+  const spotRef = usePointerSpot<HTMLDivElement>('[data-project-card]');
 
   return (
     <Section
@@ -48,11 +53,15 @@ export function Projects({ githubUser, limit = 6 }: ProjectsProps) {
       ) : null}
 
       {projects.length > 0 ? (
-        <Reveal as="ul" variant="up" className={styles.grid}>
-          {projects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
-          ))}
-        </Reveal>
+        <div ref={driftRef} className={styles.lanes}>
+          <div ref={spotRef}>
+            <Reveal as="ul" variant="up" className={styles.grid}>
+              {projects.map((project, index) => (
+                <ProjectCard key={project.id} project={project} index={index} />
+              ))}
+            </Reveal>
+          </div>
+        </div>
       ) : null}
 
       {status === 'error' ? (
@@ -67,13 +76,14 @@ export function Projects({ githubUser, limit = 6 }: ProjectsProps) {
 
       <Reveal variant="fade" delay={140}>
         <a
+          data-ico-host
           className={styles.moreLink}
           href={`https://github.com/${githubUser}?tab=repositories`}
           rel="noreferrer noopener"
           target="_blank"
         >
           All repositories on GitHub
-          <span aria-hidden="true">→</span>
+          <Icon name="arrowUpRight" size={16} motion="nudge" />
         </a>
       </Reveal>
     </Section>

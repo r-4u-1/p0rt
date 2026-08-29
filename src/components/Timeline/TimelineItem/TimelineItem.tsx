@@ -1,4 +1,6 @@
 import type { RoleKind, TimelineEntry } from '@/types/portfolio';
+import { Icon } from '@/components/Icon';
+import type { IconName } from '@/components/Icon';
 import { useInView } from '@/hooks/useInView';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import styles from './TimelineItem.module.css';
@@ -16,6 +18,18 @@ const KIND_LABEL: Record<RoleKind, string> = {
 };
 
 /**
+ * The marker carries the kind. A coloured dot needed a legend; a terminal,
+ * a shield, two figures and a mortarboard do not — and the colour stays,
+ * so the two readings reinforce each other rather than duplicating.
+ */
+const KIND_ICON: Record<RoleKind, IconName> = {
+  development: 'terminal',
+  quality: 'shieldCheck',
+  leadership: 'users',
+  education: 'cap',
+};
+
+/**
  * One employment entry. Observes itself so long timelines only animate the
  * rows a visitor actually reaches — cheaper on mobile than one big observer
  * plus per-row delays.
@@ -29,6 +43,7 @@ export function TimelineItem({ entry, index }: TimelineItemProps) {
   return (
     <li
       ref={ref}
+      data-ico-host
       className={styles.item}
       data-visible={visible ? 'true' : 'false'}
       data-kind={entry.kind}
@@ -36,7 +51,7 @@ export function TimelineItem({ entry, index }: TimelineItemProps) {
       style={{ '--item-index': index } as React.CSSProperties}
     >
       <span className={styles.marker} aria-hidden="true">
-        <span className={styles.dot} />
+        <Icon name={KIND_ICON[entry.kind]} size={14} className={styles.markerIcon} />
       </span>
 
       <article className={styles.card}>
@@ -58,8 +73,12 @@ export function TimelineItem({ entry, index }: TimelineItemProps) {
         </ul>
 
         <ul className={styles.stack} aria-label={`Tools used as ${entry.role}`}>
-          {entry.stack.map((tool) => (
-            <li key={tool} className={styles.tool}>
+          {entry.stack.map((tool, toolIndex) => (
+            <li
+              key={tool}
+              className={styles.tool}
+              style={{ '--tool-index': toolIndex } as React.CSSProperties}
+            >
               {tool}
             </li>
           ))}

@@ -1,7 +1,28 @@
 .footer {
+  position: relative;
+  /* Same containment as Section: this landmark is not one. */
+  overflow-x: clip;
   background: var(--c-ink);
   color: var(--c-paper);
   padding: var(--section-pad-block) var(--gutter) var(--s-6);
+}
+
+/* The page ends on two dark sections in a row. This hairline is the seam,
+   so the footer reads as a new surface rather than more of the last one. */
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--gutter);
+  right: var(--gutter);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--c-signal-soft) 55%, transparent),
+    color-mix(in srgb, var(--c-pulse) 45%, transparent),
+    transparent
+  );
 }
 
 .inner {
@@ -40,22 +61,51 @@
   border-bottom: 1px solid #2a313d;
 }
 
+/*
+ * A wipe rather than an indent. The row used to animate `padding-inline-start`
+ * on hover, which reflows the whole grid every frame; the fill below is a
+ * scaleX on a pseudo-element, and the text rides in on a transform. Same
+ * gesture, none of the layout work.
+ */
 .channelLink {
+  position: relative;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr auto;
   align-items: baseline;
   gap: var(--s-1) var(--s-4);
-  padding-block: var(--s-5);
+  padding: var(--s-5) var(--s-4);
+  margin-inline: calc(var(--s-4) * -1);
   text-decoration: none;
-  transition: padding-inline-start calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+  isolation: isolate;
 }
 
-.channelLink:hover {
-  padding-inline-start: var(--s-3);
+.channelLink::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--c-signal) 22%, transparent),
+    transparent 70%
+  );
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart);
+}
+
+.channelIcon {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: #8c94a4;
+  transition:
+    color calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+    transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart);
 }
 
 .channelLabel {
-  grid-column: 1;
+  grid-column: 2;
   font-family: var(--font-mono);
   font-size: var(--t-xs);
   letter-spacing: 0.12em;
@@ -64,23 +114,39 @@
 }
 
 .channelValue {
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 2;
   font-family: var(--font-display);
   font-size: var(--t-xl);
   word-break: break-word;
+  transition: transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart);
 }
 
 .arrow {
-  grid-column: 2;
+  grid-column: 3;
   grid-row: 1 / span 2;
   align-self: center;
   color: var(--c-pulse);
-  transition: transform calc(var(--dur-mid) * var(--motion)) var(--ease-out);
 }
 
-.channelLink:hover .arrow {
-  transform: translateX(0.35rem);
+@media (hover: hover) {
+  .channelLink:hover::before,
+  .channelLink:focus-visible::before {
+    transform: scaleX(1);
+  }
+
+  .channelLink:hover .channelValue {
+    transform: translateX(0.4rem);
+  }
+
+  .channelLink:hover .channelIcon {
+    color: var(--c-pulse);
+  }
+}
+
+.channelLink:active .channelValue {
+  transform: translateX(0.15rem);
+  transition-duration: calc(var(--dur-tap) * var(--motion));
 }
 
 .colophon {
@@ -114,9 +180,35 @@
 }
 
 .top {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
   text-decoration: none;
+  transition: color calc(var(--dur-fast) * var(--motion)) var(--ease-out);
+}
+
+.topIcon {
+  transform: rotate(180deg);
+  transition: transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart);
 }
 
 .top:hover {
   color: var(--c-pulse);
+}
+
+.top:hover .topIcon {
+  transform: rotate(180deg) translateY(0.2rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .channelLink::before,
+  .channelValue,
+  .channelIcon,
+  .topIcon {
+    transform: none;
+  }
+
+  .topIcon {
+    transform: rotate(180deg);
+  }
 }

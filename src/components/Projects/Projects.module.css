@@ -8,6 +8,11 @@
   min-height: 1.2em;
 }
 
+.lanes {
+  /* Only exists to receive --drift from useScrollProgress; the cards read it. */
+  display: block;
+}
+
 .grid {
   display: grid;
   gap: var(--s-4);
@@ -57,12 +62,19 @@
   text-decoration: none;
   transition:
     background calc(var(--dur-fast) * var(--motion)) var(--ease-out),
+    transform calc(var(--dur-fast) * var(--motion)) var(--ease-out),
     color calc(var(--dur-fast) * var(--motion)) var(--ease-out);
 }
 
-.moreLink:hover {
+.moreLink:hover,
+.moreLink:focus-visible {
   background: var(--c-ink);
   color: var(--c-paper);
+}
+
+.moreLink:active {
+  transform: scale(0.98);
+  transition-duration: calc(var(--dur-tap) * var(--motion));
 }
 
 @media (min-width: 680px) {

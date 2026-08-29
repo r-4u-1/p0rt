@@ -12,38 +12,41 @@
 .marker {
   position: absolute;
   left: 0;
-  top: 0.45rem;
+  top: 0.3rem;
   display: grid;
   place-items: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
   border-radius: 50%;
   background: var(--c-ink);
   border: 1px solid #2f3743;
   transform: scale(0.4);
   opacity: 0;
   transition:
-    transform calc(var(--dur-mid) * var(--motion)) var(--ease-out),
-    opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+    transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart),
+    opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+    border-color calc(var(--dur-mid) * var(--motion)) var(--ease-out);
 }
 
-.dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--c-signal-soft);
+.markerIcon {
+  color: var(--c-signal-soft);
 }
 
-.item[data-kind='quality'] .dot {
-  background: var(--c-pulse);
+.item[data-kind='quality'] .markerIcon {
+  color: var(--c-pulse);
 }
 
-.item[data-kind='leadership'] .dot {
-  background: var(--c-warn);
+.item[data-kind='leadership'] .markerIcon {
+  color: var(--c-warn);
 }
 
-.item[data-kind='education'] .dot {
-  background: #8c94a4;
+.item[data-kind='education'] .markerIcon {
+  color: #98a0b0;
+}
+
+.item:hover .marker {
+  border-color: currentColor;
+  transform: scale(1.12);
 }
 
 .item[data-visible='true'] .marker {
@@ -52,13 +55,34 @@
 }
 
 /* ---- Card ------------------------------------------------------------ */
+/*
+ * Entries arrive from alternating sides rather than all from below. A ten-
+ * year history read as one repeated fade-up is the tell the whole page is
+ * trying to avoid; alternating turns the column into something with a gait.
+ * The offset is small — this is a rhythm, not a slideshow.
+ */
 .card {
   opacity: 0;
-  transform: translate3d(0, 1.5rem, 0);
+  transform: translate3d(calc(var(--from, 0) * 2.5rem), 0.75rem, 0);
   transition:
     opacity calc(var(--dur-slow) * var(--motion)) var(--ease-out),
-    transform calc(var(--dur-slow) * var(--motion)) var(--ease-out);
+    transform calc(var(--dur-slow) * var(--motion)) var(--ease-out-quart);
   transition-delay: calc(90ms * var(--motion));
+}
+
+/*
+ * The alternation needs a column narrower than the screen to swing in. On a
+ * phone the entry *is* the screen, so a sideways entrance is a shudder
+ * rather than a gait — and it would start each card off the right edge.
+ */
+@media (min-width: 900px) {
+  .item {
+    --from: 1;
+  }
+
+  .item:nth-child(even) {
+    --from: -1;
+  }
 }
 
 .item[data-visible='true'] .card {
@@ -141,6 +165,25 @@
   border-radius: var(--radius-sm);
   background: #1b2029;
   color: #b6bdc9;
+  /* Chips settle in one after another once the entry itself has landed. */
+  opacity: 0;
+  transform: translate3d(0, 0.4rem, 0);
+  transition:
+    opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+    transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart),
+    background calc(var(--dur-fast) * var(--motion)) var(--ease-out),
+    color calc(var(--dur-fast) * var(--motion)) var(--ease-out);
+}
+
+.item[data-visible='true'] .tool {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc((420ms + var(--tool-index, 0) * 55ms) * var(--motion));
+}
+
+.tool:hover {
+  background: var(--c-signal);
+  color: #fff;
 }
 
 @media (min-width: 900px) {
@@ -155,7 +198,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .card,
-  .marker {
+  .marker,
+  .tool {
     opacity: 1;
     transform: none;
   }

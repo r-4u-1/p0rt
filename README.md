@@ -41,14 +41,17 @@ src/
 │   ├── ScrollSpine/     the signature element: reading progress + section markers
 │   ├── Reveal/          shared scroll-into-view wrapper used by every section
 │   ├── Section/         layout primitive: rhythm, landmark, heading association
+│   ├── Icon/            inline SVG set + the draw-on animation
+│   ├── CanvasScene/     host for the canvas art; owns the element, not the drawing
 │   ├── Projects/        container + ProjectCard/ presentation child
 │   ├── Timeline/        animated history + TimelineItem/ child
 │   └── …                About, StackMatrix, Approach, Exploring, Contact, SkipLink
-├── hooks/               useInView, useScrollScene, useSectionProgress, useActiveSection…
+├── art/                 canvas scenes as pure functions of state and time
+├── hooks/               useInView, useScrollScene, useScrollProgress, useCanvasScene…
 ├── services/            data sources behind an interface
 ├── data/                all editable content
 ├── types/               domain model — no React, no DOM
-└── test/                observer mock, fakes, render helper
+└── test/                observer mock, fake 2D context, fakes, render helper
 ```
 
 ### SOLID in practice
@@ -74,21 +77,81 @@ the component tree imports `fetch`.
 
 ## Motion
 
-Three primitives cover every effect on the page:
+Every section moves differently, because a page where each section fades up in turn
+is one idea repeated seven times. The vocabulary is shared; the choreography is not.
 
-- `useInView` — IntersectionObserver, used by `Reveal` and each timeline entry. Touch-friendly
-  by construction, since it never listens to scroll.
-- `useScrollScene` — writes `--scene` (0 → 1 progress through a pinned section) to the
-  element and lets CSS choreograph the whole scene from that one number. Coalesced to one
-  write per animation frame. The hero's break-apart sequence runs entirely on it.
-- `useSectionProgress` — reading progress as 0→1, driving the spine. Measured in *section*
-  space, not document space: the spine spaces its markers evenly, so raw scroll position
-  would run a fifth of the rail ahead of them over the pinned hero alone.
+| Section | Axis | What moves |
+| --- | --- | --- |
+| Hero | pinned scrub | the headline shears apart, the floor tips over, the integrity gauge drains |
+| About | horizontal | prose and facts card counter-scroll; a hairline sweeps down the card |
+| Stack | **horizontal** | four panels traverse a pinned rail, each one's bars filling as it arrives |
+| Projects | vertical | grid columns drift at three rates; a highlight follows the cursor |
+| Journey | vertical | a charge rides the track; entries alternate in; crows cross the sky |
+| Approach | horizontal | each row's rule draws left to right as the row is revealed |
+| Exploring | vertical | a shallow arc across each row, over falling telemetry |
+| Contact | horizontal | a fill wipes across the row and the address rides in on it |
 
-Every transition duration is multiplied by `var(--motion)`, which
-`@media (prefers-reduced-motion: reduce)` sets to `0`. One switch, whole page.
+### The four primitives
 
----
+- `useInView` — IntersectionObserver, used by `Reveal` and each timeline entry.
+  Touch-friendly by construction, since it never listens to scroll.
+- `useScrollScene` — writes `--scene` (0 → 1 through a **pinned** section) and lets CSS
+  choreograph from that one number. Drives the hero and the Stack rail.
+- `useScrollProgress` — writes `--progress` and `--drift` (-1 → 0 → 1) for an **ordinary**
+  section crossing the viewport. Counter-scrolling two columns is then a sign flip
+  rather than two separate measurements.
+- `useSectionProgress` — reading progress as 0→1, driving the spine. Measured in
+  *section* space, not document space: the spine spaces its markers evenly, so raw
+  scroll position would run a fifth of the rail ahead of them over the pinned hero alone.
+
+All four are coalesced to one write per animation frame by `useRafCallback`.
+
+### The horizontal section
+
+`StackMatrix` pins for one viewport and pushes its rail sideways. The travel is
+`translate3d(calc(var(--scene) * (var(--visible) - 100%)), 0, 0)` — percentage transforms
+resolve against the element's own width, so `100%` is the rail: the overhang needs no
+measurement in JS and stays correct when a group is added to the data. It only pins above
+1000×660 with motion allowed; everywhere else the same markup is a responsive grid.
+
+Pinning is safe here precisely because nothing in those panels is focusable. A link inside
+a scroll-driven translation is a trap — tabbing to it moves focus somewhere the browser
+cannot scroll into view. If the section ever gains one, the horizontal mode has to go.
+
+### Canvas art
+
+Two scenes in `src/art/`: a flock of crows crossing the Journey sky, and falling telemetry
+behind Exploring. They are plain functions of state and time — no React, no DOM, no
+observers — which is why they are unit-tested against a recording 2D context rather than
+eyeballed. `useCanvasScene` owns every reason a canvas should *stop*: off screen, hidden
+tab, finished, or reduced motion. The crows re-seed per run, so scrolling back gives you a
+different flock rather than a replay.
+
+The rain ages its trails by painting the background over itself at low alpha — one
+`fillRect` and two `fillText` per column, instead of redrawing every glyph of every trail.
+Below 700px it is `display: none`, which is also the off switch for the loop, since a
+box-less element never intersects.
+
+### Icons
+
+`src/components/Icon/paths.ts` holds hand-drawn geometry on a 24 grid. Every shape carries
+`pathLength="1"`, which normalises the dash geometry: one `stroke-dasharray: 1` rule then
+animates a short tick and a long shield outline at the same visual rate, with nothing to
+re-tune when a path changes. Dropping in an icon from elsewhere is a copy of its `d`
+attributes into a new entry; the page's motion applies to it for free.
+
+### Reduced motion, and the switch you never see
+
+Every duration is multiplied by `var(--motion)`, which
+`@media (prefers-reduced-motion: reduce)` sets to `0`. One switch, whole page: the canvases
+render nothing at all, the pinned runways collapse to a single screen, and the document is
+9 300px instead of 12 100.
+
+The second switch is a repair. `useInView` treats silence from the observer as a failure
+rather than as "not yet": if nothing reports within 1.6s it reveals anyway and flags the
+document, and one rule in `global.css` drops every duration to zero. Without it, any
+environment that renders but does not animate — a background tab, a prerender, a headless
+screenshotter — gets the whole page at `opacity: 0`, with nothing in the console to say why.
 
 ## Testing
 
@@ -99,9 +162,12 @@ npm run e2e           # Playwright functional journeys (desktop + mobile)
 npm run percy         # Percy visual regression — needs PERCY_TOKEN
 ```
 
-**85 unit and component tests** covering menu behaviour and focus return, reveal states,
-project loading/fallback/error paths, timeline rendering, GitHub response mapping and
-filtering, scroll-progress maths and listener cleanup.
+**185 unit and component tests** covering menu behaviour and focus return, reveal states
+and the reveal failsafe, project loading/fallback/error paths, timeline rendering, GitHub
+response mapping and filtering, scroll-progress maths and listener cleanup, pointer
+delegation, canvas lifecycle (in view, hidden tab, finished, replay, reduced motion), and
+the art itself — that the flock crosses the frame and reports itself finished, and that
+the rain steps by row and never runs off the edge.
 
 **Accessibility** is asserted, not assumed: `jest-axe` runs against every section and the
 whole composed page, alongside explicit checks for landmarks, a single `h1`, `aria-expanded`,
@@ -137,8 +203,12 @@ The workflow sets `VITE_BASE` from the repository name, so the site works at
 
 ## Performance and accessibility notes
 
-- React is split into its own chunk; the app bundle is ~37 kB before gzip.
+- React is split into its own chunk; the app bundle is ~50 kB before gzip.
 - Scroll work is `transform` and `opacity` only, batched with `requestAnimationFrame`.
+- Canvases stop dead when off screen, in a hidden tab, finished, or hidden by CSS.
+- Sections carry `overflow-x: clip`, so an entrance offset cannot grow the document's
+  horizontal scroll range. `clip` rather than `hidden`, which would make every section a
+  scroll container and break the sticky rail pinned inside one.
 - No `background-attachment: fixed`, which breaks on iOS Safari.
 - Focus is visible everywhere and re-targeted when the mobile menu closes.
 - The decorative spine is `aria-hidden`; the nav carries the real links.

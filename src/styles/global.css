@@ -84,6 +84,22 @@ button {
   color: #fff;
 }
 
+/*
+ * Escape hatch for environments that render but do not animate: background
+ * tabs, prerenders, headless screenshotters. `useInView` sets the attribute
+ * when its reveal failsafe trips, and every duration collapses so elements
+ * land on their finished state instead of their starting one. Without this
+ * the page renders correctly and shows nothing.
+ */
+[data-reveal-fallback] *,
+[data-reveal-fallback] *::before,
+[data-reveal-fallback] *::after {
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

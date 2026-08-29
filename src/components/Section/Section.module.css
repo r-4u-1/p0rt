@@ -4,6 +4,20 @@
   padding-inline: var(--gutter);
   background: var(--surface-bg);
   color: var(--surface-fg);
+  /*
+   * Contains this section's own horizontal excess: entrance transforms that
+   * start off to one side, and the decorative canvases that bleed into the
+   * gutters. On a narrow screen the content column *is* the viewport, so a
+   * 2.5rem entrance offset is 2.5rem of document overflow — invisible,
+   * because `body` clips it, but the page still grows a horizontal scroll
+   * range that some mobile browsers will happily let a thumb find.
+   *
+   * `clip`, not `hidden`: hidden would make every section a scroll container
+   * and break `position: sticky` for the Stack rail pinned inside one.
+   * Where `clip` is unsupported the declaration is simply dropped, which is
+   * today's behaviour rather than a new fault.
+   */
+  overflow-x: clip;
 }
 
 .paper {
@@ -24,7 +38,14 @@
   margin-inline: auto;
 }
 
+/*
+ * Positioned and stacked so decorative layers inside a section's children —
+ * the Journey canvas reaches up behind this block — pass behind the heading
+ * rather than over it. Without this the canvas wins on DOM order alone.
+ */
 .head {
+  position: relative;
+  z-index: 1;
   margin-bottom: clamp(2rem, 5vw, 3.5rem);
 }
 

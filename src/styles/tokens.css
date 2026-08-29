@@ -64,8 +64,15 @@
   --rail-w: 2px;
 
   /* ---- Motion ------------------------------------------------------- */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Exponential deceleration only. No bounce, no elastic — this page is an
+     instrument readout, and instruments settle, they do not spring. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* expo — confident, decisive */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1); /* smooth */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1); /* snappier */
   --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* 100/300/500: feedback / state change / entrance. */
+  --dur-tap: 110ms;
   --dur-fast: 180ms;
   --dur-mid: 420ms;
   --dur-slow: 900ms;
@@ -74,9 +81,13 @@
      so one switch disables all decorative motion. */
   --motion: 1;
 
-  --z-nav: 60;
+  /* Semantic stack. Decorative art sits *below* content by design: the
+     canvases are atmosphere, never something a visitor has to scroll past. */
+  --z-art: 0;
+  --z-content: 1;
   --z-rail: 40;
   --z-overlay: 55;
+  --z-nav: 60;
 }
 
 [data-surface='ink'] {

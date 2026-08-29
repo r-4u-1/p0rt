@@ -286,6 +286,17 @@
   animation-play-state: paused;
 }
 
+/* Nudges toward the section it points at, which is also where the link goes. */
+.cueIcon {
+  transition: transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart);
+}
+
+.cue:hover .cueIcon,
+.cue:focus-visible .cueIcon {
+  transform: translateY(0.22rem);
+  color: var(--c-pulse);
+}
+
 /* Drains from full teal to empty amber as the headline is dismantled. */
 .gauge {
   display: flex;
@@ -366,6 +377,10 @@
   .cueLine {
     animation: none;
     transform: scaleX(1);
+  }
+
+  .cueIcon {
+    transform: none;
   }
 
   .watermark {

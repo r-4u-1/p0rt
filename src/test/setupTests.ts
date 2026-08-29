@@ -38,6 +38,16 @@ beforeAll(() => {
 
   window.scrollTo = jest.fn() as unknown as typeof window.scrollTo;
 
+  /**
+   * jsdom has no 2D canvas. `useCanvasScene` already treats a missing
+   * context as "no art here" and does nothing, which is the correct
+   * production behaviour too — but jsdom logs a "not implemented" error to
+   * the virtual console on every call, which buries real failures. Returning
+   * null explicitly is the same answer, quietly.
+   */
+  HTMLCanvasElement.prototype.getContext = (() =>
+    null) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+
   if (typeof window.requestAnimationFrame !== 'function') {
     window.requestAnimationFrame = ((cb: FrameRequestCallback) =>
       setTimeout(() => cb(performance.now()), 0) as unknown as number) as typeof requestAnimationFrame;

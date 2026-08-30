@@ -97,8 +97,25 @@
   --surface-line: #2a313d;
 }
 
+/*
+ * The motion switch, in priority order.
+ *
+ * The media query is the default. `data-motion` is the visitor's own answer,
+ * written by the motion store before React mounts, and it out-specifies the
+ * query in both directions — `off` stops a default machine, `on` starts a
+ * machine whose OS says reduce. Attribute selectors on :root are (0,2,0)
+ * against the query's (0,1,0), so the override wins without !important.
+ */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion: 0;
   }
+}
+
+:root[data-motion='off'] {
+  --motion: 0;
+}
+
+:root[data-motion='on'] {
+  --motion: 1;
 }

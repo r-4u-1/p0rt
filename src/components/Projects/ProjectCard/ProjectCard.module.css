@@ -185,17 +185,17 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card {
+  :root:not([data-motion='on']) .card {
     --lane-shift: 0rem;
     --lift: 0rem;
   }
 
-  .open {
+  :root:not([data-motion='on']) .open {
     opacity: 1;
     transform: none;
   }
 
-  .spot {
+  :root:not([data-motion='on']) .spot {
     display: none;
   }
 }

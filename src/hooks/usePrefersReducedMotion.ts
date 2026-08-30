@@ -1,30 +1,15 @@
-import { useEffect, useState } from 'react';
-
-const QUERY = '(prefers-reduced-motion: reduce)';
+import { useMotionPreference } from './useMotionPreference';
 
 /**
  * Single source of truth for "should this animate?". Every motion hook asks
  * this one rather than re-implementing the media query.
+ *
+ * It used to *be* the media query. It is now a read of the motion store,
+ * which starts from that query and lets the visitor override it — so adding
+ * the toggle did not mean revisiting `useScrollScene`, `useCanvasScene`,
+ * `usePointerSpot`, `Reveal` or `TimelineItem`. They all already asked the
+ * right question; only the answer got better.
  */
 export function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState<boolean>(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return false;
-    return window.matchMedia(QUERY).matches;
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return;
-    const list = window.matchMedia(QUERY);
-    const onChange = (event: MediaQueryListEvent) => setReduced(event.matches);
-
-    if (typeof list.addEventListener === 'function') {
-      list.addEventListener('change', onChange);
-      return () => list.removeEventListener('change', onChange);
-    }
-    // Safari < 14
-    list.addListener(onChange);
-    return () => list.removeListener(onChange);
-  }, []);
-
-  return reduced;
+  return useMotionPreference().reduced;
 }

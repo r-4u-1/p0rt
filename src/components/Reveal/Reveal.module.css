@@ -37,7 +37,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
+  :root:not([data-motion='on']) .reveal {
     opacity: 1;
     transform: none;
     clip-path: none;

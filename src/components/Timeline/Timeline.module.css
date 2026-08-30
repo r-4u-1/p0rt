@@ -95,11 +95,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .track {
+  :root:not([data-motion='on']) .track {
     transform: scaleY(1);
   }
 
-  .pulse {
+  :root:not([data-motion='on']) .pulse {
     display: none;
   }
+}
+
+:root[data-quality='low'] .pulse {
+  filter: none;
 }

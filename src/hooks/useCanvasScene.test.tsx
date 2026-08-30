@@ -3,6 +3,7 @@ import { useCanvasScene } from './useCanvasScene';
 import type { Scene } from '@/art/scene';
 import { createFakeContext } from '@/test/fakeCanvasContext';
 import { triggerIntersection } from '@/test/intersectionObserver';
+import { setSystemReducedMotion } from '@/test/motion';
 
 interface ProbeProps {
   readonly scene: Scene;
@@ -27,21 +28,7 @@ function tick(frames = 1) {
   });
 }
 
-function reducedMotion(value: boolean) {
-  window.matchMedia = ((query: string) => ({
-    matches: value && query.includes('reduce'),
-    media: query,
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-    onchange: null,
-  })) as unknown as typeof window.matchMedia;
-}
-
 describe('useCanvasScene', () => {
-  const originalMatchMedia = window.matchMedia;
   let fake = createFakeContext();
 
   beforeEach(() => {
@@ -57,7 +44,6 @@ describe('useCanvasScene', () => {
   afterEach(() => {
     jest.useRealTimers();
     jest.restoreAllMocks();
-    window.matchMedia = originalMatchMedia;
   });
 
   it('does not paint until the canvas is in view', () => {
@@ -154,7 +140,7 @@ describe('useCanvasScene', () => {
   });
 
   it('renders nothing at all under reduced motion', () => {
-    reducedMotion(true);
+    setSystemReducedMotion(true);
     const frame = jest.fn();
 
     render(<Probe scene={{ frame }} />);

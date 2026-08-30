@@ -1,8 +1,12 @@
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { resetObservers, MockIntersectionObserver } from './intersectionObserver';
+import { resetMotionForTests } from '@/motion/motionPreference';
 
 expect.extend(toHaveNoViolations);
+
+/** Restored after every test, so one case's stub cannot leak into the next. */
+let defaultMatchMedia: typeof window.matchMedia;
 
 /**
  * jsdom implements neither IntersectionObserver nor matchMedia, and both are
@@ -21,19 +25,21 @@ beforeAll(() => {
     value: MockIntersectionObserver,
   });
 
+  defaultMatchMedia = ((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })) as unknown as typeof window.matchMedia;
+
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     configurable: true,
-    value: (query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    }),
+    value: defaultMatchMedia,
   });
 
   window.scrollTo = jest.fn() as unknown as typeof window.scrollTo;
@@ -54,6 +60,22 @@ beforeAll(() => {
     window.cancelAnimationFrame = ((id: number) =>
       clearTimeout(id)) as unknown as typeof cancelAnimationFrame;
   }
+});
+
+/*
+ * The motion store is module state that outlives a test, so each case starts
+ * from a page that moves and a system that has no opinion.
+ *
+ * Deliberately `beforeEach` rather than `afterEach`: resetting notifies the
+ * store's subscribers, and Testing Library unmounts *after* this file's
+ * hooks run — so tearing down here would push a state update into components
+ * that are still mounted, and every one of them would warn about an update
+ * outside `act`. Cleaning up on the way in has no such audience.
+ */
+beforeEach(() => {
+  window.matchMedia = defaultMatchMedia;
+  localStorage.clear();
+  resetMotionForTests();
 });
 
 afterEach(() => {

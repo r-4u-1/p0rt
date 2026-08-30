@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { NavItem } from '@/data/navigation';
+import { MotionToggle } from '@/components/MotionToggle';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import styles from './Nav.module.css';
 
@@ -51,20 +52,24 @@ export function Nav({ items, activeId = '', brand }: NavProps) {
         <span className={styles.brandText}>{brand}</span>
       </a>
 
-      <button
-        ref={toggleRef}
-        type="button"
-        className={styles.toggle}
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen((value) => !value)}
-      >
-        <span className={styles.bars} aria-hidden="true">
-          <span />
-          <span />
-        </span>
-        {open ? 'Close' : 'Menu'}
-      </button>
+      <div className={styles.controls}>
+        <MotionToggle className={styles.motion} />
+
+        <button
+          ref={toggleRef}
+          type="button"
+          className={styles.toggle}
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((value) => !value)}
+        >
+          <span className={styles.bars} aria-hidden="true">
+            <span />
+            <span />
+          </span>
+          {open ? 'Close' : 'Menu'}
+        </button>
+      </div>
 
       <nav
         id={panelId}

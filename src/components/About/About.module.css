@@ -173,17 +173,17 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .prose,
-  .cardDrift {
+  :root:not([data-motion='on']) .prose,
+  :root:not([data-motion='on']) .cardDrift {
     transform: none;
   }
 
-  .pip::after {
+  :root:not([data-motion='on']) .pip::after {
     animation: none;
     opacity: 0;
   }
 
-  .card::after {
+  :root:not([data-motion='on']) .card::after {
     display: none;
   }
 }

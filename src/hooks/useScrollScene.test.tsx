@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import { useScrollScene } from './useScrollScene';
+import { setSystemReducedMotion } from '@/test/motion';
 
 function Scene() {
   const ref = useScrollScene<HTMLDivElement>();
@@ -98,16 +99,7 @@ describe('useScrollScene', () => {
 
   it('pins the scene at zero and stays quiet under reduced motion', () => {
     const add = jest.spyOn(window, 'addEventListener');
-    (window.matchMedia as jest.Mock | typeof window.matchMedia) = ((query: string) => ({
-      matches: true,
-      media: query,
-      onchange: null,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })) as typeof window.matchMedia;
+    setSystemReducedMotion(true);
 
     render(<Scene />);
     const node = screen.getByTestId('scene');

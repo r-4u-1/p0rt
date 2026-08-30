@@ -201,14 +201,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .channelLink::before,
-  .channelValue,
-  .channelIcon,
-  .topIcon {
+  :root:not([data-motion='on']) .channelLink::before,
+  :root:not([data-motion='on']) .channelValue,
+  :root:not([data-motion='on']) .channelIcon,
+  :root:not([data-motion='on']) .topIcon {
     transform: none;
   }
 
-  .topIcon {
+  :root:not([data-motion='on']) .topIcon {
     transform: rotate(180deg);
   }
 }

@@ -1,38 +1,84 @@
 /*
- * Two layouts from one markup tree.
+ * One idea, two mechanisms.
  *
- * Narrow / short / reduced-motion  → an ordinary responsive grid.
- * Wide and tall                    → a pinned rail that travels sideways.
+ * Base: a native horizontal scroll-snap rail. Thumb, trackpad, keyboard —
+ * whatever the device has. This is the version that works everywhere, so it
+ * is the version written first and without conditions.
  *
- * The switch is done entirely in the media queries at the bottom: the base
- * rules below describe the grid, because that is the version that has to
- * work everywhere. Nothing about the horizontal mode leaks into it.
+ * Enhancement: on a wide, tall screen with motion enabled, the rail stops
+ * being scrollable and is driven by page scroll instead, pinned for one
+ * viewport. Same markup, same readout, same panels.
+ *
+ * The readout reads `--traverse`, which each mode points at its own source
+ * (`--rail` from the scroller, `--scene` from the pinned scrub), so it never
+ * has to know which is running.
  */
 
 .runway {
   position: relative;
 }
 
-.viewport {
+.stage {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vh, 2.5rem);
+  /* Points at the thumb-driven source until the pinned block overrides it. */
+  --traverse: var(--rail, 0);
+}
+
+/* ---- The rail --------------------------------------------------------- */
+.rail {
+  /*
+   * Bleeds a gutter each side so a panel leaving the frame runs off the
+   * screen edge rather than stopping short of it. One gutter is the widest
+   * bleed that is safe at every viewport: the content column sits at least a
+   * gutter in from the edge, so this lands on the edge at narrow widths and
+   * inside it at wide ones.
+   */
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  /* Momentum without a visible bar; the readout below is the position. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /*
+   * No `touch-action` override. Browsers already lock a swipe to one axis
+   * inside a scroll container, and constraining it here would also switch
+   * off pinch-zoom over the rail — taking a zoom gesture away from the
+   * people most likely to need it, to solve a problem the browser had
+   * already solved.
+   */
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.rail:focus-visible {
+  outline-offset: -3px;
 }
 
 .track {
-  display: grid;
-  gap: clamp(2rem, 4vw, 3rem);
+  display: flex;
+  gap: var(--s-5);
+  width: max-content;
+  align-items: start;
+  /* One trailing gutter, so the last panel can reach the left edge. */
+  padding-inline-end: var(--gutter);
 }
 
 .group {
+  width: min(80vw, 21rem);
+  flex: none;
+  scroll-snap-align: start;
   padding-top: var(--s-5);
   border-top: 2px solid var(--c-ink);
-  /* Scrubbed by the horizontal mode; 1 means "fully arrived" everywhere else. */
+  /* Scrubbed by the pinned mode; 1 means "fully arrived" everywhere else. */
   --arrive: 1;
-}
-
-/* There is nothing to traverse in the stacked grid, so the readout only
-   exists in the horizontal mode that turns it on. */
-.readout {
-  display: none;
 }
 
 .groupHead {
@@ -132,34 +178,85 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .barFill {
+  :root:not([data-motion='on']) .barFill {
     transform: scaleX(var(--fill, 1));
   }
 }
 
-@media (min-width: 720px) {
-  .track {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1080px) {
-  .track {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--s-6);
-  }
-}
-
-/* ---- Horizontal mode --------------------------------------------------
- *
- * Requires width for the rail to be worth traversing and height for the
- * pinned panel to fit; a short laptop window would otherwise pin a panel
- * taller than the screen, and the bottom of it could never be reached.
- * `--motion: 0` cannot be tested in a media query, so the runway height is
- * multiplied by it instead — at zero the section is exactly its own height,
- * nothing sticks, and the grid rules below take over untouched.
+/* ---- Readout ---------------------------------------------------------
+ * The affordance ("this moves sideways") and the position ("you are here"),
+ * in the same instrument language as the spine and the hero's gauge.
  * -------------------------------------------------------------------- */
-@media (min-width: 1000px) and (min-height: 660px) and (prefers-reduced-motion: no-preference) {
+.readout {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  flex: none;
+  /*
+   * Above the rail by default. A six-skill panel is taller than a phone, so
+   * a readout underneath it is a swipe hint you only reach after scrolling
+   * past everything it was meant to tell you about. The pinned layout puts
+   * it back below, where the whole panel is on screen at once.
+   */
+  order: -1;
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.readoutLabel {
+  color: var(--c-signal);
+}
+
+.readoutRail {
+  flex: 1;
+  max-width: 22rem;
+  height: var(--rail-w);
+  background: color-mix(in srgb, var(--c-haze) 80%, transparent);
+  overflow: hidden;
+}
+
+.readoutFill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-signal), var(--c-pulse));
+  transform: scaleX(var(--traverse, 0));
+  transform-origin: left center;
+}
+
+.readoutCount {
+  color: var(--c-muted);
+}
+
+/* Tighter on a phone, where the panel is the tallest thing on the rail. */
+@media (max-width: 559px) {
+  .skills {
+    gap: var(--s-4);
+    margin-top: var(--s-5);
+  }
+}
+
+@media (min-width: 560px) {
+  .group {
+    width: min(62vw, 23rem);
+  }
+}
+
+/* ---- Pinned mode -----------------------------------------------------
+ *
+ * Needs width for the traverse to be worth doing and height for a panel that
+ * cannot scroll to fit on screen. Gated on `data-motion` rather than on
+ * `prefers-reduced-motion`, because the visitor's own toggle has to be able
+ * to turn it off — and a media query cannot see a toggle. `:not([off])`
+ * rather than `[on]` so a missing attribute behaves like the default.
+ *
+ * Turning it off is safe: what is left is the scroll-snap rail, which still
+ * reaches every panel. The earlier version fell back to a stacked grid and
+ * would have stranded three groups behind a zero-length runway.
+ * -------------------------------------------------------------------- */
+@media (min-width: 1000px) and (min-height: 660px) {
   /*
    * The runway is the pinned panel plus a spacer, and the panel is exactly
    * one viewport tall pinned at top: 0. That is what makes `--scene` line up
@@ -169,26 +266,25 @@
    * is the same instant it releases. Any sticky offset would desynchronise
    * the two, so the header clearance is padding *inside* the panel instead.
    */
-  .runway::after {
+  :root:not([data-motion='off']) .runway::after {
     content: '';
     display: block;
-    height: calc(115vh * var(--motion));
+    height: 115vh;
   }
 
-  .viewport {
+  :root:not([data-motion='off']) .stage {
     position: sticky;
     top: 0;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
     justify-content: center;
-    gap: clamp(2rem, 5vh, 3.5rem);
     padding-block: clamp(4rem, 9vh, 5.5rem) clamp(2rem, 5vh, 3.25rem);
-    /* The rail overhangs the content column on both sides; the section's
-       own gutter would otherwise slice the panels off mid-travel. */
-    margin-inline: calc(var(--gutter) * -1);
-    padding-inline: var(--gutter);
+    --traverse: var(--scene, 0);
+  }
+
+  /* The rail stops being a scroll container and becomes a window. */
+  :root:not([data-motion='off']) .rail {
     overflow: hidden;
+    scroll-snap-type: none;
     /*
      * Feather the cut. A panel leaving the frame is sliced mid-word, and a
      * hard edge reads as a clipping bug rather than as content continuing
@@ -209,70 +305,33 @@
    * travelling sideways" before a single panel has moved, and fills the
    * height that four short panels leave over without inventing content.
    */
-  .viewport::before {
+  :root:not([data-motion='off']) .stage::before {
     content: '';
     position: absolute;
-    inset: -15% -25%;
+    inset: -5% -25%;
     z-index: 0;
     pointer-events: none;
     background-image:
-      linear-gradient(color-mix(in srgb, var(--c-ink) 7%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, var(--c-ink) 7%, transparent) 1px, transparent 1px);
+      linear-gradient(color-mix(in srgb, var(--c-ink) 6%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--c-ink) 6%, transparent) 1px, transparent 1px);
     background-size: 72px 72px;
     mask-image: radial-gradient(115% 75% at 50% 50%, #000 22%, transparent 76%);
     transform: translate3d(calc(var(--scene, 0) * -16vw), 0, 0);
   }
 
-  .track,
-  .readout {
+  :root:not([data-motion='off']) .rail,
+  :root:not([data-motion='off']) .readout {
     position: relative;
     z-index: 1;
   }
 
-  /* ---- Traverse readout ---- */
-  .readout {
-    display: flex;
-    align-items: center;
-    gap: var(--s-4);
-    flex: none;
-    font-family: var(--font-mono);
-    font-size: var(--t-xs);
-    letter-spacing: var(--tracking-wide);
-    text-transform: uppercase;
-    color: var(--c-muted);
-    order: 2;
+  :root:not([data-motion='off']) .readout {
+    order: 0;
   }
 
-  .readoutRail {
-    flex: 1;
-    max-width: 22rem;
-    height: var(--rail-w);
-    background: color-mix(in srgb, var(--c-haze) 80%, transparent);
-    overflow: hidden;
-  }
-
-  .readoutFill {
-    display: block;
-    height: 100%;
-    background: linear-gradient(90deg, var(--c-signal), var(--c-pulse));
-    transform: scaleX(var(--scene, 0));
-    transform-origin: left center;
-  }
-
-  .readoutLabel {
-    color: var(--c-signal);
-  }
-
-  .readoutCount {
-    color: var(--c-muted);
-  }
-
-  .track {
-    display: flex;
+  :root:not([data-motion='off']) .track {
+    padding-inline-end: 0;
     gap: var(--s-6);
-    width: max-content;
-    align-items: start;
-    order: 1;
     /*
      * Percentage translations resolve against the element's own width, so
      * `100%` here is the full rail. Subtracting the visible width gives the
@@ -287,13 +346,11 @@
    * Wide-format panels, not tall ones. Reflowing the skills into two columns
    * does two jobs at once: it keeps a six-skill panel comfortably inside a
    * pinned viewport that cannot scroll, and it makes the rail long enough
-   * that the traverse is roughly 1:1 with the scroll driving it. Narrow
-   * panels gave a rail barely wider than the screen — 300px of travel spread
-   * over a full screen of scrolling, which reads as a stutter, not a move.
+   * that the traverse is roughly 1:1 with the scroll driving it.
    */
-  .group {
+  :root:not([data-motion='off']) .group {
     width: clamp(27rem, 36vw, 34rem);
-    flex: none;
+    padding-top: var(--s-6);
     /*
      * Each panel's own arrival, scrubbed from the shared `--scene`. Panel n
      * fills across the slice of the runway where it is actually the one
@@ -309,34 +366,30 @@
    * opacity here — Reveal owns the entrance, this owns the traverse — and
    * whichever loaded last would otherwise win at random.
    */
-  .track .group[data-visible] {
+  :root:not([data-motion='off']) .track .group[data-visible] {
     opacity: calc(0.4 + 0.6 * var(--arrive));
     transition: opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out);
   }
 
-  .skills {
+  :root:not([data-motion='off']) .skills {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: clamp(1.25rem, 3.4vh, 2.25rem) var(--s-6);
     margin-top: clamp(1.5rem, 4vh, 2.5rem);
   }
 
-  .skill {
+  :root:not([data-motion='off']) .skill {
     gap: var(--s-3);
   }
 
-  .skillName {
+  :root:not([data-motion='off']) .skillName {
     font-size: var(--t-lg);
   }
 
-  .groupHead {
+  :root:not([data-motion='off']) .groupHead {
     font-size: var(--t-2xl);
   }
 
-  .group {
-    padding-top: var(--s-6);
-  }
-
-  .groupIcon {
+  :root:not([data-motion='off']) .groupIcon {
     color: color-mix(in srgb, var(--c-signal) calc(40% + var(--arrive) * 60%), var(--c-muted));
   }
 }

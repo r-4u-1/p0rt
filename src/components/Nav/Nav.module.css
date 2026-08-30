@@ -83,6 +83,17 @@
   transform: scale(0.97);
 }
 
+/* ---- Controls cluster ------------------------------------------------ */
+.controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  /* Above the fullscreen panel, so the motion switch stays reachable while
+     the mobile menu is open — the menu is exactly where someone realises
+     they want the animation to stop. */
+  z-index: var(--z-nav);
+}
+
 /* ---- Toggle (mobile) ------------------------------------------------ */
 .toggle {
   display: inline-flex;
@@ -261,6 +272,14 @@
 @media (min-width: 900px) {
   .toggle {
     display: none;
+  }
+
+  .controls {
+    order: 3;
+  }
+
+  .header {
+    gap: var(--s-5);
   }
 
   .panel,

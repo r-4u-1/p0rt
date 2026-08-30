@@ -197,9 +197,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card,
-  .marker,
-  .tool {
+  :root:not([data-motion='on']) .card,
+  :root:not([data-motion='on']) .marker,
+  :root:not([data-motion='on']) .tool {
     opacity: 1;
     transform: none;
   }

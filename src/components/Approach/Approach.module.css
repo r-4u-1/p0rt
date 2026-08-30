@@ -79,11 +79,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .item::after {
+  :root:not([data-motion='on']) .item::after {
     transform: scaleX(1);
   }
 
-  .title {
+  :root:not([data-motion='on']) .title {
     transform: none;
   }
 }

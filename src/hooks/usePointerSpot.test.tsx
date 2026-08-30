@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { usePointerSpot } from './usePointerSpot';
+import { setSystemReducedMotion } from '@/test/motion';
 
 function Probe() {
   const ref = usePointerSpot<HTMLDivElement>('[data-card]');
@@ -105,25 +106,11 @@ describe('usePointerSpot', () => {
   });
 
   it('does nothing at all for a visitor who asked for reduced motion', () => {
-    const matchMedia = window.matchMedia;
-    window.matchMedia = ((query: string) => ({
-      matches: query.includes('reduce'),
-      media: query,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-      onchange: null,
-    })) as unknown as typeof window.matchMedia;
+    setSystemReducedMotion(true);
 
-    try {
-      render(<Probe />);
-      move(screen.getByTestId('a'), 200, 100);
+    render(<Probe />);
+    move(screen.getByTestId('a'), 200, 100);
 
-      expect(screen.getByTestId('a')).not.toHaveAttribute('data-spot');
-    } finally {
-      window.matchMedia = matchMedia;
-    }
+    expect(screen.getByTestId('a')).not.toHaveAttribute('data-spot');
   });
 });

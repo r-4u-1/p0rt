@@ -37,6 +37,16 @@
   }
 }
 
+/*
+ * The most expensive layer on the page, and the first to go when
+ * useQualityGuard decides this device cannot keep up. `display: none` stops
+ * the loop as well as the view — a box-less element never intersects, and
+ * useCanvasScene only runs while its canvas is in view.
+ */
+:root[data-quality='low'] .rain {
+  display: none;
+}
+
 .grid {
   position: relative;
   z-index: 1;
@@ -155,12 +165,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .grid .card[data-visible='true'],
-  .grid .card[data-visible='true']:hover {
+  :root:not([data-motion='on']) .grid .card[data-visible='true'],
+  :root:not([data-motion='on']) .grid .card[data-visible='true']:hover {
     transform: none;
   }
 
-  .rain {
+  :root:not([data-motion='on']) .rain {
     display: none;
   }
 }

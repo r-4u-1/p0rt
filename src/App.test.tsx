@@ -47,9 +47,27 @@ describe('App', () => {
     expect(screen.getByRole('main')).toHaveAttribute('id', 'main');
   });
 
-  it('keeps the decorative scroll spine out of the accessibility tree', async () => {
+  /*
+   * The spine has two forms and declares each one honestly. Narrow, it is a
+   * progress bar: it reports a position, duplicates no destination, and is
+   * hidden. Wide, it grows a marker column you can click, and hiding an
+   * interactive control from assistive technology would be withholding
+   * functionality — so there it is a labelled navigation instead.
+   */
+  it('keeps the reporting half of the scroll spine out of the accessibility tree', async () => {
     await renderApp();
-    expect(screen.getByTestId('scroll-spine')).toHaveAttribute('aria-hidden', 'true');
+    const spine = screen.getByTestId('scroll-spine');
+
+    expect(spine.querySelector('[aria-hidden="true"]')).not.toBeNull();
+  });
+
+  it('renders no spine controls at widths where the map is not shown', async () => {
+    // jsdom's matchMedia stub reports false, i.e. a narrow viewport.
+    await renderApp();
+    const spine = screen.getByTestId('scroll-spine');
+
+    expect(spine.querySelector('nav')).toBeNull();
+    expect(spine.querySelectorAll('button')).toHaveLength(0);
   });
 
   it('loads projects through the injected source rather than the network', async () => {

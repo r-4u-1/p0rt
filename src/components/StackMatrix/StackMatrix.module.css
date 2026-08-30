@@ -5,9 +5,10 @@
  * whatever the device has. This is the version that works everywhere, so it
  * is the version written first and without conditions.
  *
- * Enhancement: on a wide, tall screen with motion enabled, the rail stops
- * being scrollable and is driven by page scroll instead, pinned for one
- * viewport. Same markup, same readout, same panels.
+ * Enhancement: on any screen tall enough to hold a panel, with motion
+ * enabled, the rail stops being scrollable and is driven by page scroll
+ * instead, pinned for one viewport — phone, tablet and desktop alike. Same
+ * markup, same readout, same panels; only the proportions change.
  *
  * The readout reads `--traverse`, which each mode points at its own source
  * (`--rail` from the scroller, `--scene` from the pinned scrub), so it never
@@ -246,17 +247,27 @@
 
 /* ---- Pinned mode -----------------------------------------------------
  *
- * Needs width for the traverse to be worth doing and height for a panel that
- * cannot scroll to fit on screen. Gated on `data-motion` rather than on
- * `prefers-reduced-motion`, because the visitor's own toggle has to be able
- * to turn it off — and a media query cannot see a toggle. `:not([off])`
- * rather than `[on]` so a missing attribute behaves like the default.
+ * The traverse is the point of this section, so every screen tall enough to
+ * hold a panel gets it — a phone included. Vertical scroll drives the rail
+ * sideways while the stage is pinned for one viewport, which is the only way
+ * the whole section can be *seen* on a phone: the swipe rail underneath is
+ * reachable, but it asks for a gesture nobody makes while scrolling a page,
+ * and its panels are taller than the screen, so a thumb passing through
+ * reads one column of one group and never learns the other three exist.
+ *
+ * Gated on height rather than width. What the mode needs is a viewport that
+ * can hold a panel and a readout at once; a landscape phone 400px tall
+ * cannot, and drops back to the swipe rail. Gated on `data-motion` rather
+ * than on `prefers-reduced-motion`, because the visitor's own toggle has to
+ * be able to turn it off — and a media query cannot see a toggle.
+ * `:not([off])` rather than `[on]` so a missing attribute behaves like the
+ * default.
  *
  * Turning it off is safe: what is left is the scroll-snap rail, which still
- * reaches every panel. The earlier version fell back to a stacked grid and
+ * reaches every panel. An earlier version fell back to a stacked grid and
  * would have stranded three groups behind a zero-length runway.
  * -------------------------------------------------------------------- */
-@media (min-width: 1000px) and (min-height: 660px) {
+@media (min-height: 640px) {
   /*
    * The runway is the pinned panel plus a spacer, and the panel is exactly
    * one viewport tall pinned at top: 0. That is what makes `--scene` line up
@@ -265,20 +276,47 @@
    * section's bottom hits the bottom, which with a full-height sticky child
    * is the same instant it releases. Any sticky offset would desynchronise
    * the two, so the header clearance is padding *inside* the panel instead.
+   *
+   * The spacer is what the traverse costs in scrolling. A phone frames one
+   * panel at a time, so its track is three frames longer than the window and
+   * needs more runway than a desktop showing two panels at once — otherwise
+   * one flick throws the reader past two groups.
    */
+  :root:not([data-motion='off']) .runway {
+    --runway-h: 210vh;
+  }
+
   :root:not([data-motion='off']) .runway::after {
     content: '';
     display: block;
-    height: 115vh;
+    height: var(--runway-h);
   }
 
   :root:not([data-motion='off']) .stage {
     position: sticky;
     top: 0;
     height: 100vh;
+    /*
+     * The *small* viewport height, so the panel fits while a mobile
+     * browser's toolbars are showing rather than being cut off by chrome
+     * that only retracts once you scroll. `--scene` is measured against
+     * innerHeight, which is this or larger, so the traverse finishes a
+     * moment before the stage releases — a beat of stillness on the last
+     * panel rather than a jump.
+     */
+    height: 100svh;
     justify-content: center;
-    padding-block: clamp(4rem, 9vh, 5.5rem) clamp(2rem, 5vh, 3.25rem);
+    padding-block: clamp(4rem, 8vh, 5.5rem) clamp(1.25rem, 5vh, 3.25rem);
     --traverse: var(--scene, 0);
+    /*
+     * The window the track travels inside. Percentage translations resolve
+     * against the element's own width, so `100%` on the track is its full
+     * length and this is the visible part — the overhang falls out of the
+     * two without measuring anything in JS, and stays right when a group is
+     * added to the data. It lives on the stage rather than the track because
+     * the panels size themselves from it too.
+     */
+    --visible: min(var(--content-max), calc(100vw - 2 * var(--gutter)));
   }
 
   /* The rail stops being a scroll container and becomes a window. */
@@ -299,6 +337,145 @@
     );
   }
 
+  /* The whole panel is on screen at once here, so the hint goes back below. */
+  :root:not([data-motion='off']) .readout {
+    order: 0;
+  }
+
+  :root:not([data-motion='off']) .track {
+    padding-inline-end: 0;
+    transform: translate3d(calc(var(--scene, 0) * (var(--visible) - 100%)), 0, 0);
+  }
+
+  /*
+   * Out-specifies Reveal's own `[data-visible='true'] { opacity: 1 }`, which
+   * sits on this very element. Both stylesheets have a legitimate claim on
+   * opacity here — Reveal owns the entrance, this owns the traverse — and
+   * whichever loaded last would otherwise win at random.
+   */
+  :root:not([data-motion='off']) .track .group[data-visible] {
+    opacity: calc(0.4 + 0.6 * var(--arrive));
+    transition: opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+  }
+
+  :root:not([data-motion='off']) .groupIcon {
+    color: color-mix(in srgb, var(--c-signal) calc(40% + var(--arrive) * 60%), var(--c-muted));
+  }
+}
+
+/* ---- Pinned on a phone or a tablet ------------------------------------
+ *
+ * One panel per screen, near enough: it takes the window less a sliver, and
+ * the sliver is the affordance — the next group's edge under the fade says
+ * there is more to the right before the readout has moved at all.
+ *
+ * The rest is a fit problem. A pinned panel cannot scroll, so a six-skill
+ * group has to hold its heading, its caption, six names, six notes and six
+ * bars inside one phone screen. The rhythm tightens; nothing is dropped,
+ * because the notes are the honest part of an honest-levels section.
+ * -------------------------------------------------------------------- */
+@media (min-height: 640px) and (max-width: 999px) {
+  /*
+   * Tighter than the shared rhythm. On the shortest screen this mode runs
+   * on, the panel, the gap and the readout have to add up to less than the
+   * viewport, and the gap is the only one of the three that can give.
+   */
+  :root:not([data-motion='off']) .stage {
+    gap: clamp(0.75rem, 2.5vh, 1.5rem);
+  }
+
+  :root:not([data-motion='off']) .group {
+    width: calc(var(--visible) - clamp(1.25rem, 8vw, 2.75rem));
+    padding-top: var(--s-4);
+    /*
+     * Each panel's own arrival, scrubbed from the shared `--scene`. With one
+     * panel in the window and four groups, panel n is square in the frame at
+     * roughly n/3 of the traverse; it fills over the last fifth of its
+     * approach, so the bars read as a consequence of the scroll rather than
+     * as a burst when the section appears. Panel 0 starts full — it is
+     * already in the frame the moment the stage pins.
+     */
+    --arrive: clamp(0, calc((var(--scene, 0) - var(--panel-index, 0) * 0.3333 + 0.2) / 0.2), 1);
+  }
+
+  :root:not([data-motion='off']) .groupHead {
+    font-size: var(--t-lg);
+  }
+
+  /*
+   * Every measurement in here is in vh, because the constraint is the
+   * screen height and nothing else: the same six skills have to fit a 640px
+   * phone and breathe on an 850px one. The minimums are what the shortest
+   * supported screen can afford, not what looks best in isolation.
+   */
+  :root:not([data-motion='off']) .skills {
+    gap: clamp(0.45rem, 1.9vh, 1.15rem);
+    margin-top: clamp(0.6rem, 2.6vh, 1.5rem);
+  }
+
+  :root:not([data-motion='off']) .skill {
+    gap: clamp(0.2rem, 0.7vh, 0.4rem);
+  }
+
+  :root:not([data-motion='off']) .skillName {
+    font-size: clamp(0.9rem, 2.4vh, 1rem);
+  }
+
+  /*
+   * Tighter tracking so the longest label — WORKING KNOWLEDGE — still sits
+   * on the same line as the skill it describes. Wrapped, it costs a line in
+   * a panel that has none to spare, and it reads as a second skill.
+   */
+  :root:not([data-motion='off']) .skillLevel {
+    font-size: 0.625rem;
+    letter-spacing: 0.07em;
+  }
+
+  :root:not([data-motion='off']) .skillNote {
+    font-size: clamp(0.75rem, 2.1vh, 0.8125rem);
+    line-height: 1.35;
+  }
+}
+
+/*
+ * A tablet's panel is a desktop's panel in every way but one: two of them do
+ * not fit side by side, so the frame still holds one at a time. The skills
+ * reflow into two columns all the same — a single column 600px wide strands
+ * each level a hand's width from the name it belongs to, and leaves the
+ * bottom third of the screen empty.
+ *
+ * The threshold is where the panel itself passes roughly 34rem, which is the
+ * width the two-column desktop panel starts at.
+ */
+@media (min-height: 640px) and (min-width: 620px) and (max-width: 999px) {
+  :root:not([data-motion='off']) .groupHead {
+    font-size: var(--t-xl);
+  }
+
+  :root:not([data-motion='off']) .skills {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 3vh, 2rem) var(--s-6);
+    margin-top: clamp(1.25rem, 3.4vh, 2.25rem);
+  }
+
+  :root:not([data-motion='off']) .skill {
+    gap: var(--s-2);
+  }
+
+  :root:not([data-motion='off']) .skillNote {
+    font-size: var(--t-sm);
+  }
+}
+
+/* ---- The floor, wherever there is room for it -------------------------
+ *
+ * From a tablet up, the panel no longer fills the stage, and a pinned
+ * screen with a lot of empty paper around one card reads as a layout that
+ * has come apart rather than as a frame with something moving through it.
+ * A phone has no such space and gets no floor: grid lines behind text on a
+ * 375px screen are noise, not depth.
+ * -------------------------------------------------------------------- */
+@media (min-height: 640px) and (min-width: 620px) {
   /*
    * The hero's blueprint floor, seen side-on and moving at a fraction of the
    * rail's speed. It gives the pinned screen a depth cue that says "this is
@@ -324,22 +501,26 @@
     position: relative;
     z-index: 1;
   }
+}
 
-  :root:not([data-motion='off']) .readout {
-    order: 0;
+/* ---- Pinned on a desktop ----------------------------------------------
+ *
+ * Wide enough to frame two panels, which changes the shape of the thing:
+ * panels go wide rather than tall, the skills reflow into two columns, and
+ * the traverse is short enough that a 115vh runway keeps it roughly 1:1
+ * with the scroll driving it.
+ * -------------------------------------------------------------------- */
+@media (min-width: 1000px) and (min-height: 660px) {
+  :root:not([data-motion='off']) .runway {
+    --runway-h: 115vh;
+  }
+
+  :root:not([data-motion='off']) .stage {
+    padding-block: clamp(4rem, 9vh, 5.5rem) clamp(2rem, 5vh, 3.25rem);
   }
 
   :root:not([data-motion='off']) .track {
-    padding-inline-end: 0;
     gap: var(--s-6);
-    /*
-     * Percentage translations resolve against the element's own width, so
-     * `100%` here is the full rail. Subtracting the visible width gives the
-     * exact overhang — no measurement in JS, and it stays correct when a
-     * group is added to the data.
-     */
-    --visible: min(var(--content-max), calc(100vw - 2 * var(--gutter)));
-    transform: translate3d(calc(var(--scene, 0) * (var(--visible) - 100%)), 0, 0);
   }
 
   /*
@@ -351,24 +532,8 @@
   :root:not([data-motion='off']) .group {
     width: clamp(27rem, 36vw, 34rem);
     padding-top: var(--s-6);
-    /*
-     * Each panel's own arrival, scrubbed from the shared `--scene`. Panel n
-     * fills across the slice of the runway where it is actually the one
-     * being read, so the bars are a readout of the traverse rather than a
-     * single burst when the section appears.
-     */
+    /* Two panels in the frame at once, so the arrivals overlap. */
     --arrive: clamp(0, calc((var(--scene, 0) - var(--panel-index, 0) * 0.2 + 0.06) / 0.26), 1);
-  }
-
-  /*
-   * Out-specifies Reveal's own `[data-visible='true'] { opacity: 1 }`, which
-   * sits on this very element. Both stylesheets have a legitimate claim on
-   * opacity here — Reveal owns the entrance, this owns the traverse — and
-   * whichever loaded last would otherwise win at random.
-   */
-  :root:not([data-motion='off']) .track .group[data-visible] {
-    opacity: calc(0.4 + 0.6 * var(--arrive));
-    transition: opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out);
   }
 
   :root:not([data-motion='off']) .skills {
@@ -387,9 +552,5 @@
 
   :root:not([data-motion='off']) .groupHead {
     font-size: var(--t-2xl);
-  }
-
-  :root:not([data-motion='off']) .groupIcon {
-    color: color-mix(in srgb, var(--c-signal) calc(40% + var(--arrive) * 60%), var(--c-muted));
   }
 }

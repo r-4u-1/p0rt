@@ -29,23 +29,34 @@ const GROUP_ICON: Record<string, IconName> = {
   ai: 'cpu',
 };
 
-/** Must agree with the pinned block in the stylesheet. */
-const PINNABLE = '(min-width: 1000px) and (min-height: 660px)';
+/**
+ * Must agree with the pinned block in the stylesheet.
+ *
+ * Height, not width: the pinned traverse needs a viewport that can hold a
+ * panel and its readout at once, which a phone held upright can and a phone
+ * turned sideways cannot. Exported because the tests assert the behaviour
+ * that hangs off it, and a second copy of the query is a second thing to
+ * forget when this one moves.
+ */
+export const PINNABLE = '(min-height: 640px)';
 
 /**
  * The one section that moves sideways — on every device.
  *
  * The rail is the idea, so the rail is the *base* layout: a native
  * scroll-snap track that a thumb swipes, a trackpad flicks and a keyboard
- * scrolls. On a wide screen with motion enabled it is enhanced into a pinned
- * scrub, where vertical scroll drives the traverse and each panel's bars
- * fill as it arrives.
+ * scrolls. Wherever the screen is tall enough to frame a panel and motion is
+ * allowed, that rail is enhanced into a pinned scrub, where vertical scroll
+ * drives the traverse and each panel's bars fill as it arrives.
  *
- * This is the opposite of where it started. The first version made the
- * horizontal traverse a desktop luxury and gave phones a stacked grid — the
- * signature interaction of the page, withheld from most of the people who
- * would see it. Swiping a rail is the more natural gesture of the two;
- * the desktop version is the one that needs a trick.
+ * The enhancement is not a desktop luxury. On a phone the swipe rail is
+ * reachable but unused: nobody stops scrolling a page to try a sideways
+ * gesture on a section they have not read yet, and a panel taller than the
+ * screen means the thumb that scrolls past reads part of one group and never
+ * learns the other three are there. Driving the traverse from the scroll the
+ * reader is already doing is what makes the section visible at all — so the
+ * gate is height, which is about whether a panel fits, not width, which was
+ * only ever a proxy for it.
  *
  * It is safe to pin precisely because nothing in here is focusable: the
  * panels are headings, text and bars. A link inside a scroll-driven
@@ -56,13 +67,13 @@ const PINNABLE = '(min-width: 1000px) and (min-height: 660px)';
 export function StackMatrix({ groups }: StackMatrixProps) {
   const runwayRef = useScrollScene<HTMLDivElement>();
   const railRef = useScrollerProgress<HTMLDivElement>();
-  const wideEnough = useMediaQuery(PINNABLE);
+  const tallEnough = useMediaQuery(PINNABLE);
   const { reduced } = useMotionPreference();
 
   // When pinned, the rail is driven by page scroll and is not itself
   // scrollable, so it must not be a tab stop. When it is a real scroll
   // container it must be, or its content is unreachable by keyboard.
-  const pinned = wideEnough && !reduced;
+  const pinned = tallEnough && !reduced;
 
   return (
     <Section

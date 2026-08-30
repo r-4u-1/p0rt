@@ -1,6 +1,6 @@
 import { act, render, screen, within } from '@testing-library/react';
 import { axe } from 'jest-axe';
-import { StackMatrix } from './StackMatrix';
+import { PINNABLE, StackMatrix } from './StackMatrix';
 import type { SkillGroup } from '@/types/portfolio';
 import { installMatchMedia } from '@/test/media';
 import { setMotionSetting } from '@/motion/motionPreference';
@@ -58,8 +58,9 @@ describe('StackMatrix', () => {
 
   /*
    * The rail is the idea, so the rail is the base layout — a native
-   * scroll-snap track that works on every device. On a wide screen with
-   * motion enabled it is enhanced into a pinned scrub driven by page scroll.
+   * scroll-snap track that works on every device. On any screen tall enough
+   * to frame a panel, with motion enabled, it is enhanced into a pinned
+   * scrub driven by page scroll — phones included.
    *
    * The distinction is not cosmetic: in one mode the rail is a real scroll
    * container whose contents are unreachable by keyboard without a tab stop;
@@ -67,10 +68,9 @@ describe('StackMatrix', () => {
    * strand focus somewhere the browser cannot scroll to.
    */
   describe('the two traverse modes', () => {
-    const PINNABLE = '(min-width: 1000px) and (min-height: 660px)';
     const rail = () => document.querySelector('[class*="rail"]') as HTMLElement;
 
-    it('is a keyboard-reachable scroll container on a narrow screen', () => {
+    it('is a keyboard-reachable scroll container on a screen too short to pin', () => {
       installMatchMedia({ [PINNABLE]: false });
 
       render(<StackMatrix groups={groups} />);

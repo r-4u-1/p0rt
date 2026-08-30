@@ -1,5 +1,38 @@
+/*
+ * The section is the sky. The canvas covers it edge to edge behind the
+ * content, and every scroll effect here reads `--drift` from the same
+ * wrapper via useScrollProgress.
+ */
+.sky {
+  position: relative;
+}
+
+/*
+ * A band of sky across the top of the section, not a layer over the whole
+ * list. The canvas reaches up past its own container to sit behind the
+ * heading, because that is where the empty sky is — birds crossing the
+ * middle of a CV read as something wrong with the page, birds crossing above
+ * the title read as weather.
+ *
+ * One gutter is the widest horizontal bleed that is safe at every viewport:
+ * the content column sits at least a gutter in from the edge, so `-1 gutter`
+ * lands on the edge at narrow widths and inside it at wide ones. More than
+ * that overflows the document — invisibly, because `body` clips it, but the
+ * page still grows a horizontal scroll range.
+ */
+.crows {
+  position: absolute;
+  top: -16rem;
+  height: 21rem;
+  left: calc(var(--gutter) * -1);
+  right: calc(var(--gutter) * -1);
+  z-index: 0;
+  pointer-events: none;
+}
+
 .wrap {
   position: relative;
+  z-index: 1;
 }
 
 .track {
@@ -18,6 +51,39 @@
   transform: scaleY(1);
 }
 
+/*
+ * A charge running down the track at reading pace.
+ *
+ * `--drift` is -1 → 1 across the whole section, so the 0 → 1 remap below
+ * puts the pulse at the top as the first role arrives and at the bottom as
+ * the last one leaves. It rides *inside* the track, which is scaled on Y —
+ * so its own transform is written in percentages of its own height and is
+ * unaffected by the parent's scale.
+ */
+.pulse {
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 5px;
+  /*
+   * Full height, with the charge painted into its top 4.4rem. That is what
+   * makes the percentage below mean anything: transform percentages resolve
+   * against the element's own box, so a 4.4rem-tall element could only ever
+   * travel 4.4rem. At full height, `100% - 4.4rem` is exactly the track
+   * minus the charge — the travel, without measuring anything in JS.
+   */
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0,
+    color-mix(in srgb, var(--c-pulse) 90%, transparent) 2.2rem,
+    transparent 4.4rem
+  );
+  filter: blur(1px);
+  opacity: 0.85;
+  transform: translateY(calc((var(--drift, 0) * 0.5 + 0.5) * (100% - 4.4rem)));
+}
+
 .list {
   display: block;
 }
@@ -29,7 +95,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .track {
+  :root:not([data-motion='on']) .track {
     transform: scaleY(1);
   }
+
+  :root:not([data-motion='on']) .pulse {
+    display: none;
+  }
+}
+
+:root[data-quality='low'] .pulse {
+  filter: none;
 }

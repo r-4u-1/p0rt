@@ -1,4 +1,55 @@
+/*
+ * Dark surface, code falling behind it. The cards have to stay readable
+ * over a moving background, which is the whole constraint here: they are
+ * opaque, not translucent, and the rain is masked away from the middle of
+ * the grid so it never runs under a paragraph at full strength.
+ */
+
+.field {
+  position: relative;
+  isolation: isolate;
+}
+
+.rain {
+  position: absolute;
+  inset: -3rem calc(var(--gutter) * -1);
+  z-index: 0;
+  pointer-events: none;
+  /*
+   * A vertical fade only. An earlier version also punched a radial hole
+   * behind the grid to protect legibility, which was solving a problem that
+   * does not exist — the cards are opaque, so the rain is only ever seen in
+   * the gutters between them. The hole just deleted most of the effect.
+   */
+  mask-image: linear-gradient(180deg, transparent, #000 9%, #000 88%, transparent);
+}
+
+/*
+ * Below the two-column breakpoint the cards are full width and cover the
+ * field completely, so the rain would be paying for pixels nobody sees.
+ * `display: none` is also the off switch for the loop, not just the view:
+ * a box-less element never intersects, and useCanvasScene only runs while
+ * its canvas is in view.
+ */
+@media (max-width: 699px) {
+  .rain {
+    display: none;
+  }
+}
+
+/*
+ * The most expensive layer on the page, and the first to go when
+ * useQualityGuard decides this device cannot keep up. `display: none` stops
+ * the loop as well as the view — a box-less element never intersects, and
+ * useCanvasScene only runs while its canvas is in view.
+ */
+:root[data-quality='low'] .rain {
+  display: none;
+}
+
 .grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: var(--s-4);
 }
@@ -9,40 +60,78 @@
   align-content: start;
   padding: clamp(1.25rem, 3vw, 1.75rem);
   border-radius: var(--radius-md);
-  background: var(--c-paper-raised);
-  border: 1px solid var(--c-haze);
-  border-left: 3px solid var(--c-signal);
+  background: color-mix(in srgb, var(--c-ink-soft) 88%, #000);
+  border: 1px solid #2a313d;
+  transition:
+    border-color calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+    background calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+    transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart);
+}
+
+/*
+ * This element is a Reveal, and Reveal legitimately owns `transform` on it
+ * for the entrance — including `transform: none` once revealed, at
+ * `[data-visible='true']` specificity. Anything here that also wants to move
+ * the card therefore has to out-specify that, and has to compose rather than
+ * replace: the scroll arc and the hover lift are two contributions to one
+ * transform, so they go through variables and are summed once.
+ */
+.grid .card[data-visible='true'] {
+  --arc: 0rem;
+  --hover-lift: 0rem;
+  transform: translate3d(0, calc(var(--arc) + var(--hover-lift)), 0);
+}
+
+@media (hover: hover) {
+  .card:hover {
+    border-color: color-mix(in srgb, var(--c-pulse) 55%, transparent);
+    background: var(--c-ink-soft);
+  }
+
+  .grid .card[data-visible='true']:hover {
+    --hover-lift: -0.3rem;
+  }
+}
+
+.grid .card[data-visible='true']:active {
+  --hover-lift: 0rem;
+  transition-duration: calc(var(--dur-tap) * var(--motion));
 }
 
 .status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
   justify-self: start;
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 0.15rem 0.55rem;
+  padding: 0.22rem 0.6rem 0.22rem 0.45rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--c-signal) 12%, transparent);
-  color: var(--c-signal);
+  background: color-mix(in srgb, var(--c-signal-soft) 18%, transparent);
+  color: #b4a6ff;
 }
 
 .status[data-status='reading'] {
   background: color-mix(in srgb, var(--c-pulse) 16%, transparent);
-  color: #0b7a6a;
+  color: #6ee0cb;
 }
 
 .status[data-status='next'] {
-  background: color-mix(in srgb, var(--c-warn) 20%, transparent);
-  color: #8a6209;
+  background: color-mix(in srgb, var(--c-warn) 16%, transparent);
+  color: #f0c069;
 }
 
 .title {
   font-size: var(--t-lg);
+  color: var(--c-paper);
 }
 
 .why {
   font-size: var(--t-sm);
-  color: var(--c-muted);
+  color: #a9b0be;
+  text-wrap: pretty;
 }
 
 @media (min-width: 700px) {
@@ -55,5 +144,33 @@
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--s-5);
+  }
+
+  /*
+   * A shallow arc across each row: the middle column sits lower on entry and
+   * rises past the outer two. Derived from the same `--drift` as every other
+   * section, so the page keeps one scroll vocabulary.
+   */
+  .grid .card[data-visible='true'] {
+    --arc: calc(var(--drift, 0) * var(--row-depth, 0.4) * -0.9rem * var(--motion));
+  }
+
+  .card:nth-child(3n + 2) {
+    --row-depth: 1;
+  }
+
+  .card:nth-child(3n) {
+    --row-depth: 0.65;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='on']) .grid .card[data-visible='true'],
+  :root:not([data-motion='on']) .grid .card[data-visible='true']:hover {
+    transform: none;
+  }
+
+  :root:not([data-motion='on']) .rain {
+    display: none;
   }
 }

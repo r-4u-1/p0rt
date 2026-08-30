@@ -84,17 +84,76 @@ button {
   color: #fff;
 }
 
+/*
+ * Load shedding, set by useQualityGuard once it has measured what this
+ * device actually costs. The rules here are deliberately blunt: the
+ * atmospheric layers are the expensive ones and the page reads perfectly
+ * well without them, so they go first and the content-bearing motion stays.
+ */
+:root[data-quality='low'] {
+  /* Blur and large soft shadows are the most expensive paint on the page. */
+  --motion: 1;
+}
+
+:root[data-quality='low'] * {
+  backdrop-filter: none !important;
+}
+
+/*
+ * Escape hatch for environments that render but do not animate: background
+ * tabs, prerenders, headless screenshotters. `useInView` sets the attribute
+ * when its reveal failsafe trips, and every duration collapses so elements
+ * land on their finished state instead of their starting one. Without this
+ * the page renders correctly and shows nothing.
+ */
+[data-reveal-fallback] *,
+[data-reveal-fallback] *::before,
+[data-reveal-fallback] *::after {
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
+/*
+ * The system's answer, unless the visitor has overridden it.
+ *
+ * `:root:not([data-motion='on'])` is what makes the in-page toggle able to
+ * win: without it a visitor whose OS says reduce could flip `--motion` to 1
+ * and still get a frozen page, because this block would go on forcing every
+ * duration to nothing. The attribute is absent when JavaScript has not run,
+ * so the query alone still governs a no-JS visit.
+ */
 @media (prefers-reduced-motion: reduce) {
-  html {
+  :root:not([data-motion='on']) {
     scroll-behavior: auto;
   }
 
-  *,
-  *::before,
-  *::after {
+  :root:not([data-motion='on']) *,
+  :root:not([data-motion='on']) *::before,
+  :root:not([data-motion='on']) *::after {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/*
+ * The toggle's own answer, for a visitor on a machine with no preference set.
+ * `--motion: 0` already collapses every duration this page authors, but not
+ * the ones it does not — the smooth scroll on an anchor jump is the browser's,
+ * and a page that has been told to stop moving should not glide either.
+ */
+:root[data-motion='off'] {
+  scroll-behavior: auto;
+}
+
+:root[data-motion='off'] *,
+:root[data-motion='off'] *::before,
+:root[data-motion='off'] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
 }

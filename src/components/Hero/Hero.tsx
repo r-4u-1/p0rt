@@ -1,3 +1,4 @@
+import { Icon } from '@/components/Icon';
 import { useScrollScene } from '@/hooks/useScrollScene';
 import styles from './Hero.module.css';
 
@@ -78,15 +79,25 @@ export function Hero({ name, roleLine, headline, stats }: HeroProps) {
           </dl>
 
           <div className={styles.console}>
-            <a className={styles.cue} href="#about">
+            <a data-ico-host className={styles.cue} href="#about">
               <span className={styles.cueLine} aria-hidden="true" />
               Read on
+              <Icon name="arrowDown" size={15} className={styles.cueIcon} />
             </a>
 
             <div className={styles.gauge} aria-hidden="true">
               <span className={styles.gaugeLabel}>Integrity</span>
               <span className={styles.gaugeTrack}>
-                <span className={styles.gaugeFill} />
+                {/*
+                  Two nested scales, because two independent things move this
+                  bar and a single element can only hold one transform: the
+                  outer drains with scroll, the inner charges on load. Nested
+                  scaleX multiplies, so the bar reads as the product — it
+                  builds to full, then scrolling takes it apart.
+                */}
+                <span className={styles.gaugeFill}>
+                  <span className={styles.gaugeCharge} />
+                </span>
               </span>
             </div>
           </div>

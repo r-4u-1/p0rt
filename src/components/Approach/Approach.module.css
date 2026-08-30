@@ -1,3 +1,10 @@
+/*
+ * The only section that reveals horizontally, and the only one where that
+ * is the literal subject: each principle is a line being written across the
+ * page. The rule draws left to right, the text is unmasked behind it, and
+ * hovering a row pushes it further along the same axis.
+ */
+
 .list {
   display: grid;
   gap: 0;
@@ -5,19 +12,58 @@
 }
 
 .item {
+  position: relative;
   display: grid;
   gap: var(--s-2);
   padding-block: clamp(1.25rem, 3vw, 1.75rem);
+  padding-inline: var(--s-3);
+  margin-inline: calc(var(--s-3) * -1);
   border-bottom: 1px solid var(--c-haze);
+  transition: background calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+}
+
+/*
+ * The written rule. Sits on the row's own bottom border and draws across it
+ * once the row is revealed — scaleX from the left, which is a compositor-only
+ * property, rather than an animated width.
+ */
+.item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--c-signal), var(--c-pulse));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform calc(1100ms * var(--motion)) var(--ease-out-quart);
+  transition-delay: calc(var(--reveal-delay, 0ms) * var(--motion));
+}
+
+.item[data-visible='true']::after {
+  transform: scaleX(1);
 }
 
 .title {
   font-size: var(--t-lg);
+  transition: transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart);
 }
 
 .body {
-  color: var(--c-muted);
+  color: #4a5162;
   max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+@media (hover: hover) {
+  .item:hover {
+    background: color-mix(in srgb, var(--c-signal) 4%, transparent);
+  }
+
+  .item:hover .title {
+    transform: translateX(0.4rem);
+  }
 }
 
 @media (min-width: 860px) {
@@ -29,5 +75,15 @@
 
   .title {
     font-size: var(--t-xl);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='on']) .item::after {
+    transform: scaleX(1);
+  }
+
+  :root:not([data-motion='on']) .title {
+    transform: none;
   }
 }

@@ -1,3 +1,8 @@
+/*
+ * `--drift` arrives from useScrollProgress: -1 as the layout enters from
+ * below, 0 dead centre, 1 as it leaves the top. Both columns read the same
+ * number with opposite signs, so they can never desynchronise.
+ */
 .layout {
   display: grid;
   gap: clamp(2rem, 5vw, 3.5rem);
@@ -9,6 +14,10 @@
   max-width: var(--measure);
 }
 
+.paragraph:last-child {
+  text-wrap: pretty;
+}
+
 .paragraph {
   font-size: var(--t-lg);
   color: #2c3340;
@@ -18,12 +27,47 @@
   font-weight: 600;
 }
 
-.card {
+.cardDrift {
   align-self: start;
+}
+
+.card {
+  position: relative;
   background: var(--c-ink);
   color: var(--c-paper);
   border-radius: var(--radius-lg);
   padding: clamp(1.5rem, 4vw, 2.25rem);
+  overflow: hidden;
+}
+
+/*
+ * A hairline sweeps down the card as it crosses the viewport — the same
+ * gesture the spine makes, at card scale.
+ *
+ * The layer is twice the card's height with the line at its centre, so a
+ * transform of ±25% of the *layer* walks the line across exactly one card
+ * height. That keeps it on transform alone at any card height; percentage
+ * transforms resolve against the element's own box, which is why the naive
+ * version (a 1px strip moved by 100%) travels one pixel and nothing else.
+ */
+.card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -50%;
+  height: 200%;
+  background: linear-gradient(
+    180deg,
+    transparent calc(50% - 0.5px),
+    color-mix(in srgb, var(--c-pulse) 85%, transparent) 50%,
+    transparent calc(50% + 0.5px)
+  );
+  mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+  transform: translateY(calc(var(--drift, 0) * 25% * var(--motion)));
+  /* max(x, -x) is abs() with universal support. */
+  opacity: calc(1 - max(var(--drift, 0), -1 * var(--drift, 0)) * 0.85);
+  pointer-events: none;
 }
 
 .cardTitle {
@@ -63,6 +107,7 @@
 }
 
 .availability {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--s-3);
@@ -73,6 +118,7 @@
 }
 
 .pip {
+  position: relative;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -80,9 +126,64 @@
   flex: none;
 }
 
+/* Sonar ping. "Open to new roles" is the one live status on the page, so
+   it gets the one repeating animation — slow enough to read as a heartbeat
+   rather than a notification badge. */
+.pip::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  animation: ping calc(2800ms * var(--motion)) var(--ease-out) infinite;
+}
+
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
 @media (min-width: 900px) {
   .layout {
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr);
     align-items: start;
+  }
+
+  /* The counter-scroll. Only above 900px, where there are two columns to
+     pull apart; on a phone they are stacked and sliding them sideways
+     would just look like a rendering fault. */
+  .prose {
+    transform: translate3d(calc(var(--drift, 0) * -1.5rem * var(--motion)), 0, 0);
+  }
+
+  .cardDrift {
+    transform: translate3d(
+      calc(var(--drift, 0) * 2.4rem * var(--motion)),
+      calc(var(--drift, 0) * -2.75rem * var(--motion)),
+      0
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='on']) .prose,
+  :root:not([data-motion='on']) .cardDrift {
+    transform: none;
+  }
+
+  :root:not([data-motion='on']) .pip::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  :root:not([data-motion='on']) .card::after {
+    display: none;
   }
 }

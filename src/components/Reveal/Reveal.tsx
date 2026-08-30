@@ -1,4 +1,4 @@
-import type { ElementType, ReactNode } from 'react';
+import type { CSSProperties, ElementType, ReactNode } from 'react';
 import { useInView } from '@/hooks/useInView';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import styles from './Reveal.module.css';
@@ -15,6 +15,15 @@ export interface RevealProps {
   readonly threshold?: number;
   readonly className?: string;
   readonly id?: string;
+  /** Merged after the delay variable, so callers can pass their own vars. */
+  readonly style?: CSSProperties;
+  /**
+   * Marks the element as the hover/press host for any `Icon` inside it, so
+   * pointing at a whole card animates its icon. Reveal is the card root in
+   * several sections, which is why the flag lives here rather than forcing
+   * each of them to add a wrapper element for one attribute.
+   */
+  readonly icoHost?: boolean;
 }
 
 /**
@@ -30,6 +39,8 @@ export function Reveal({
   threshold = 0.18,
   className,
   id,
+  style,
+  icoHost = false,
 }: RevealProps) {
   const reducedMotion = usePrefersReducedMotion();
   const { ref, inView } = useInView<HTMLElement>({ threshold });
@@ -41,8 +52,9 @@ export function Reveal({
       id={id}
       data-testid="reveal"
       data-visible={visible ? 'true' : 'false'}
+      data-ico-host={icoHost ? '' : undefined}
       className={[styles.reveal, styles[variant], className].filter(Boolean).join(' ')}
-      style={{ '--reveal-delay': `${delay}ms` } as React.CSSProperties}
+      style={{ '--reveal-delay': `${delay}ms`, ...style } as CSSProperties}
     >
       {children}
     </Tag>

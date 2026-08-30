@@ -46,6 +46,7 @@
   font-family: var(--font-mono);
   font-size: var(--t-sm);
   letter-spacing: 0.04em;
+  transition: transform calc(var(--dur-tap) * var(--motion)) var(--ease-out);
 }
 
 .brandMark {
@@ -71,6 +72,26 @@
 
 .brandText {
   font-weight: 600;
+  transition: color calc(var(--dur-fast) * var(--motion)) var(--ease-out);
+}
+
+.brand:hover .brandText {
+  color: var(--c-pulse);
+}
+
+.brand:active {
+  transform: scale(0.97);
+}
+
+/* ---- Controls cluster ------------------------------------------------ */
+.controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  /* Above the fullscreen panel, so the motion switch stays reachable while
+     the mobile menu is open — the menu is exactly where someone realises
+     they want the animation to stop. */
+  z-index: var(--z-nav);
 }
 
 /* ---- Toggle (mobile) ------------------------------------------------ */
@@ -253,6 +274,14 @@
     display: none;
   }
 
+  .controls {
+    order: 3;
+  }
+
+  .header {
+    gap: var(--s-5);
+  }
+
   .panel,
   .panel[data-open='false'] {
     position: static;
@@ -301,8 +330,18 @@
   }
 
   .link:hover::after,
+  .link:focus-visible::after,
   .link[aria-current='true']::after {
     transform: scaleX(1);
+  }
+
+  .link:hover {
+    color: var(--c-pulse);
+  }
+
+  .link:active {
+    transform: translateY(1px);
+    transition-duration: calc(var(--dur-tap) * var(--motion));
   }
 
   .linkIndex {

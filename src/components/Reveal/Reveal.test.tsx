@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import { Reveal } from './Reveal';
 import { triggerIntersection, observedElementCount } from '@/test/intersectionObserver';
+import { setSystemReducedMotion } from '@/test/motion';
 
 describe('Reveal', () => {
   it('always renders its children, animated or not', () => {
@@ -49,11 +50,7 @@ describe('Reveal', () => {
   });
 
   it('skips the hidden state entirely when reduced motion is requested', () => {
-    (window.matchMedia as jest.Mock) = jest.fn().mockReturnValue({
-      matches: true,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-    });
+    setSystemReducedMotion(true);
 
     render(<Reveal>No motion</Reveal>);
 

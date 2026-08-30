@@ -38,6 +38,52 @@
   --clear: clamp(0, calc((var(--scene, 0) - 0.62) / 0.38), 1);
 }
 
+/*
+ * ---- The build --------------------------------------------------------
+ *
+ * The page's claim is "I build it, then I try to break it", and until now it
+ * only ever did the second half — it opened on a finished headline and
+ * demolished it. This is the first half: on load the stage assembles, and
+ * only then is there something for the scroll to take apart.
+ *
+ * A single sweep passes down the stage once, and everything it passes is
+ * already in place behind it. It runs once, `forwards`, and is inert at
+ * `--motion: 0` because the duration collapses to zero.
+ */
+.stage::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 45vh;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--c-pulse) 16%, transparent) 62%,
+    color-mix(in srgb, var(--c-pulse) 70%, transparent) 82%,
+    transparent
+  );
+  opacity: 0;
+  animation: assemble calc(1500ms * var(--motion)) var(--ease-out) 1 both;
+}
+
+@keyframes assemble {
+  0% {
+    opacity: 0;
+    transform: translateY(-60%);
+  }
+  18% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(200%);
+  }
+}
+
 /* ---- Backdrop --------------------------------------------------------- */
 .backdrop {
   position: absolute;
@@ -65,9 +111,26 @@
   transform: perspective(1100px) rotateX(calc(var(--break) * 38deg * var(--motion)))
     translateY(calc(var(--break) * -4vh * var(--motion)));
   transform-origin: 50% 85%;
+  animation: floorIn calc(1400ms * var(--motion)) var(--ease-out) both;
+}
+
+/* The ground arrives before anything stands on it. Opacity only — the
+   element's transform is already spoken for by the scroll scrub. */
+@keyframes floorIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Healthy indigo light while everything holds together… */
+:root[data-quality='low'] .glow,
+:root[data-quality='low'] .alarm {
+  filter: none;
+}
+
 .glow {
   position: absolute;
   top: -20%;
@@ -187,7 +250,7 @@
   position: relative;
   display: block;
   transform: translate3d(0, 110%, 0);
-  animation: riseIn calc(1100ms * var(--motion)) var(--ease-out) both;
+  animation: riseIn calc(1100ms * var(--motion)) var(--ease-out-quint) both;
   animation-delay: calc(var(--line-index, 0) * 120ms * var(--motion));
   letter-spacing: calc(-0.04em + var(--break) * 0.04em * var(--motion));
   opacity: calc(1 - var(--crack) * 0.35);
@@ -197,15 +260,24 @@
   color: var(--c-signal-soft);
 }
 
-/* Chromatic shear: teal and amber ghosts split off the line, loudest in
-   the middle of the break and gone at either end — a bell curve in calc. */
+/*
+ * Chromatic shear: teal and amber ghosts split off the line, loudest in the
+ * middle of the break and gone at either end — a bell curve in calc.
+ *
+ * `--velocity` widens it. The section is about something under stress, and
+ * stress should respond to how hard you are pulling: throwing the page apart
+ * shears it further than easing through the same pixels does. Position alone
+ * could never express that.
+ */
 .line::before,
 .line::after {
   content: attr(data-text) / '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: calc(var(--break) * (1 - var(--break)) * 2.1 * var(--motion));
+  opacity: calc(
+    var(--break) * (1 - var(--break)) * (2.1 + var(--velocity, 0) * 1.4) * var(--motion)
+  );
 }
 
 .line::before {
@@ -253,6 +325,8 @@
 
 /* ---- Console: scroll cue + integrity gauge ---------------------------- */
 .console {
+  animation: fadeUp calc(800ms * var(--motion)) var(--ease-out) both;
+  animation-delay: calc(820ms * var(--motion));
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -286,6 +360,17 @@
   animation-play-state: paused;
 }
 
+/* Nudges toward the section it points at, which is also where the link goes. */
+.cueIcon {
+  transition: transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart);
+}
+
+.cue:hover .cueIcon,
+.cue:focus-visible .cueIcon {
+  transform: translateY(0.22rem);
+  color: var(--c-pulse);
+}
+
 /* Drains from full teal to empty amber as the headline is dismantled. */
 .gauge {
   display: flex;
@@ -310,10 +395,46 @@
   height: 100%;
   transform-origin: left;
   transform: scaleX(calc(1 - var(--break) * var(--motion)));
-  background: color-mix(in srgb, var(--c-pulse) calc((1 - var(--break)) * 100%), var(--c-warn));
 }
 
+.gaugeCharge {
+  display: block;
+  height: 100%;
+  transform-origin: left;
+  background: color-mix(in srgb, var(--c-pulse) calc((1 - var(--break)) * 100%), var(--c-warn));
+  animation: charge calc(1100ms * var(--motion)) var(--ease-out-quart) both;
+  animation-delay: calc(760ms * var(--motion));
+}
+
+/* Integrity reaches full only once the headline has finished arriving. */
+@keyframes charge {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Rises *and* resolves: the blur clearing is what turns a slide into
+   something settling into focus. Dropped entirely at low quality, where a
+   full-width blurred display face is the most expensive thing on screen. */
 @keyframes riseIn {
+  from {
+    transform: translate3d(0, 110%, 0);
+    filter: blur(14px);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+:root[data-quality='low'] .line {
+  animation-name: riseInFlat;
+}
+
+@keyframes riseInFlat {
   to {
     transform: translate3d(0, 0, 0);
   }
@@ -348,27 +469,47 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .line {
+  :root:not([data-motion='on']) .line {
     transform: none;
     opacity: 1;
   }
 
-  .line::before,
-  .line::after {
+  :root:not([data-motion='on']) .line::before,
+  :root:not([data-motion='on']) .line::after {
     content: none;
   }
 
-  .content,
-  .cue {
+  :root:not([data-motion='on']) .content,
+  :root:not([data-motion='on']) .cue {
     opacity: 1;
   }
 
-  .cueLine {
+  :root:not([data-motion='on']) .cueLine {
     animation: none;
     transform: scaleX(1);
   }
 
-  .watermark {
+  :root:not([data-motion='on']) .cueIcon {
+    transform: none;
+  }
+
+  :root:not([data-motion='on']) .watermark {
     opacity: 0;
+  }
+
+  :root:not([data-motion='on']) .stage::after,
+  :root:not([data-motion='on']) .floor,
+  :root:not([data-motion='on']) .gaugeCharge,
+  :root:not([data-motion='on']) .console {
+    animation: none;
+  }
+
+  :root:not([data-motion='on']) .gaugeCharge {
+    transform: scaleX(1);
+  }
+
+  :root:not([data-motion='on']) .floor,
+  :root:not([data-motion='on']) .console {
+    opacity: 1;
   }
 }

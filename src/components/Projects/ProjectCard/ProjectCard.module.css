@@ -4,20 +4,91 @@
   flex-direction: column;
   gap: var(--s-3);
   padding: clamp(1.25rem, 3vw, 1.75rem);
+  padding-right: clamp(2.75rem, 5vw, 3.25rem);
   background: var(--c-paper-raised);
   border: 1px solid var(--c-haze);
   border-radius: var(--radius-md);
+  overflow: hidden;
+  /*
+   * Two translations on one axis, from two sources: the parallax lane
+   * (scroll) and the hover lift (pointer). Composing them in a variable
+   * rather than in two competing `transform` declarations is what stops
+   * hovering a card from cancelling its drift.
+   */
+  --lift: 0rem;
+  --lane-shift: 0rem;
+  transform: translate3d(0, calc(var(--lane-shift) + var(--lift)), 0);
   transition:
-    transform calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+    transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart),
     border-color calc(var(--dur-mid) * var(--motion)) var(--ease-out),
     box-shadow calc(var(--dur-mid) * var(--motion)) var(--ease-out);
 }
 
 .card:hover,
 .card:focus-within {
-  transform: translateY(-4px);
+  --lift: -0.3rem;
   border-color: var(--c-signal);
-  box-shadow: 0 14px 34px -22px rgba(14, 17, 22, 0.55);
+  box-shadow: 0 16px 38px -24px rgba(14, 17, 22, 0.6);
+}
+
+/* Tap feedback: presses in, faster than it lifted. */
+.card:active {
+  --lift: 0.05rem;
+  transition-duration: calc(var(--dur-tap) * var(--motion));
+}
+
+/*
+ * Highlight under the cursor. `--px` / `--py` come from usePointerSpot and
+ * are only ever set on the card actually being pointed at, so this is one
+ * moving gradient on the page rather than six idle ones.
+ */
+.spot {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    18rem 18rem at calc(var(--px, 0.5) * 100%) calc(var(--py, 0.5) * 100%),
+    color-mix(in srgb, var(--c-signal) 13%, transparent),
+    transparent 62%
+  );
+  transition: opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+}
+
+.card[data-spot='true'] .spot {
+  opacity: 1;
+}
+
+/* The link's ::after covers the card, so everything else needs to sit above
+   it to stay legible — not to stay clickable; the whole card is the target. */
+.name,
+.description,
+.topics,
+.meta,
+.open {
+  position: relative;
+  z-index: 1;
+}
+
+.open {
+  position: absolute;
+  top: clamp(1.25rem, 3vw, 1.75rem);
+  right: clamp(1.1rem, 2.4vw, 1.4rem);
+  color: var(--c-muted);
+  opacity: 0;
+  transform: translate3d(-0.25rem, 0.25rem, 0);
+  transition:
+    opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+    transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart),
+    color calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+}
+
+.card:hover .open,
+.card:focus-within .open {
+  opacity: 1;
+  transform: none;
+  color: var(--c-signal);
 }
 
 .name {
@@ -78,6 +149,10 @@
   gap: var(--s-2);
 }
 
+.metaIcon {
+  color: var(--c-warn);
+}
+
 .dot {
   width: 8px;
   height: 8px;
@@ -95,4 +170,32 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ---- Parallax lanes ---------------------------------------------------
+ * `--drift` is written to the grid wrapper by useScrollProgress. Cards in
+ * different columns read it with different coefficients, so the grid
+ * breathes as it passes instead of arriving as one rigid block. Kept small:
+ * anything past about a centimetre and the rows stop reading as rows.
+ * -------------------------------------------------------------------- */
+@media (min-width: 1040px) and (prefers-reduced-motion: no-preference) {
+  .card {
+    --lane-shift: calc(var(--drift, 0) * var(--lane-depth, 0) * -1rem * var(--motion));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='on']) .card {
+    --lane-shift: 0rem;
+    --lift: 0rem;
+  }
+
+  :root:not([data-motion='on']) .open {
+    opacity: 1;
+    transform: none;
+  }
+
+  :root:not([data-motion='on']) .spot {
+    display: none;
+  }
 }

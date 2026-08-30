@@ -31,11 +31,28 @@
   transform-origin: left center;
 }
 
+/*
+ * Speed, made visible. `--velocity` is 0 → 1 and published on :root by
+ * useScrollVelocity; here it lengthens the charge trailing the fill, so
+ * throwing the page reads differently from easing it. Position tells you
+ * where you are; this tells you how hard you are moving.
+ */
+.fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: calc(1.5rem + var(--velocity, 0) * 6rem);
+  background: linear-gradient(90deg, transparent, var(--c-pulse));
+  opacity: calc(0.25 + var(--velocity, 0) * 0.75);
+}
+
 .nodes {
   display: none;
 }
 
-/* ---- Desktop: vertical spine with section markers -------------------- */
+/* ---- Desktop: vertical spine with an operable section map ------------ */
 @media (min-width: 1100px) {
   .rail {
     top: 50%;
@@ -52,6 +69,16 @@
     background: linear-gradient(180deg, var(--c-signal), var(--c-pulse));
     transform: scaleY(var(--progress, 0));
     transform-origin: top center;
+  }
+
+  .fill::after {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: calc(1.5rem + var(--velocity, 0) * 6rem);
+    background: linear-gradient(180deg, transparent, var(--c-pulse));
   }
 
   /*
@@ -75,8 +102,18 @@
     width: 12rem;
     transform: translateY(-50%);
     z-index: var(--z-rail);
+    /*
+     * The column is a thin strip of mostly empty space over real content, so
+     * it cannot swallow pointer events wholesale; only the buttons take them
+     * back. Without this the strip would eat clicks on whatever it overlays.
+     */
     pointer-events: none;
     mix-blend-mode: difference;
+  }
+
+  .nodeList {
+    position: relative;
+    height: 100%;
   }
 
   /*
@@ -91,6 +128,31 @@
     transform: translateY(-50%);
   }
 
+  .marker {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: 0.35rem 0.5rem 0.35rem 0;
+    margin-left: -0.1rem;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0.34;
+    flex: none;
+    transition:
+      opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out),
+      transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart);
+  }
+
   .label {
     font-family: var(--font-mono);
     font-size: 0.6875rem;
@@ -101,12 +163,56 @@
     transform: translateX(-0.4rem);
     transition:
       opacity calc(var(--dur-mid) * var(--motion)) var(--ease-out),
-      transform calc(var(--dur-mid) * var(--motion)) var(--ease-out);
+      transform calc(var(--dur-mid) * var(--motion)) var(--ease-out-quart);
     white-space: nowrap;
   }
 
   .node[data-active='true'] .label {
     opacity: 1;
     transform: none;
+  }
+
+  .node[data-active='true'] .dot {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+
+  /*
+   * Pointing at any marker reveals the whole map, not just the section you
+   * are on — the difference between a progress bar and something you can
+   * navigate with.
+   *
+   * Keyed off `:has(.marker:hover)` rather than a hover on the column,
+   * because the column is `pointer-events: none` — it is a thin strip of
+   * mostly empty space over real content, and it must not eat clicks meant
+   * for what is behind it. Only the buttons take pointer events back, so
+   * only they can be hovered. Where `:has()` is unsupported the rule is
+   * dropped and the active label still shows, which is the old behaviour.
+   */
+  .nodeList:has(.marker:hover) .label,
+  .nodes:focus-within .label {
+    opacity: 0.75;
+    transform: none;
+  }
+
+  .marker:hover .dot,
+  .marker:focus-visible .dot {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+
+  .marker:hover .label {
+    opacity: 1;
+  }
+
+  .marker:active .dot {
+    transform: scale(1.1);
+    transition-duration: calc(var(--dur-tap) * var(--motion));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='on']) .fill::after {
+    display: none;
   }
 }

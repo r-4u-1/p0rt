@@ -2,7 +2,8 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { Nav } from './Nav';
-import type { NavItem } from '@/data/navigation';
+import type { NavItem } from '@/types/content';
+import { en } from '@/test/content';
 
 const items: readonly NavItem[] = [
   { id: 'about', label: 'About' },
@@ -11,7 +12,7 @@ const items: readonly NavItem[] = [
 ];
 
 function renderNav(activeId = '') {
-  return render(<Nav items={items} activeId={activeId} brand="Test Person" />);
+  return render(<Nav items={items} activeId={activeId} brand="Test Person" ui={en.ui} />);
 }
 
 describe('Nav', () => {

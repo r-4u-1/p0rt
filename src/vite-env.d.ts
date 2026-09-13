@@ -9,6 +9,12 @@ declare module '*.module.css' {
   export default classes;
 }
 
+/** Both languages, served by `config/siteContentPlugin.ts`. Shape-checked there, typed in `@/content`. */
+declare module 'virtual:site-content' {
+  const content: { readonly en: unknown; readonly sv: unknown };
+  export default content;
+}
+
 declare module '*.svg' {
   const src: string;
   export default src;

@@ -1,4 +1,5 @@
 import type { Project } from '@/types/portfolio';
+import type { ProjectsContent } from '@/types/content';
 import { Icon } from '@/components/Icon';
 import styles from './ProjectCard.module.css';
 
@@ -6,6 +7,10 @@ export interface ProjectCardProps {
   readonly project: Project;
   /** Drives both the entrance stagger and the parallax lane. */
   readonly index?: number;
+  /** The card's own words; the repository's own come from GitHub. */
+  readonly labels: Pick<ProjectsContent, 'opensOnGitHub' | 'updated' | 'stars'>;
+  /** BCP-47 tag, so the month is named in the language being read. */
+  readonly locale: string;
 }
 
 const LANGUAGE_COLOUR: Record<string, string> = {
@@ -24,14 +29,19 @@ const LANGUAGE_COLOUR: Record<string, string> = {
  */
 const LANE_DEPTH = [0.35, 1, 0.62] as const;
 
-function formatUpdated(iso: string): string {
+/**
+ * A month and a year, named by the platform. An em dash rather than a word
+ * when the date will not parse: there is nothing to translate about a value
+ * GitHub should never have sent.
+ */
+function formatUpdated(iso: string, locale: string): string {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return 'Unknown';
-  return date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString(locale, { month: 'short', year: 'numeric' });
 }
 
 /** Pure presentation: give it a Project, get a card. No data fetching here. */
-export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
+export function ProjectCard({ project, index = 0, labels, locale }: ProjectCardProps) {
   return (
     <li
       data-project-card
@@ -51,7 +61,7 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
       <h3 className={styles.name}>
         <a className={styles.link} href={project.url} rel="noreferrer noopener" target="_blank">
           {project.name}
-          <span className={styles.srOnly}> (opens on GitHub in a new tab)</span>
+          <span className={styles.srOnly}> {labels.opensOnGitHub}</span>
         </a>
       </h3>
 
@@ -82,9 +92,11 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
         ) : null}
         <span className={styles.metaItem}>
           <Icon name="star" size={14} className={styles.metaIcon} />
-          {project.stars} {project.stars === 1 ? 'star' : 'stars'}
+          {project.stars} {project.stars === 1 ? labels.stars.one : labels.stars.other}
         </span>
-        <span className={styles.metaItem}>Updated {formatUpdated(project.updatedAt)}</span>
+        <span className={styles.metaItem}>
+          {labels.updated} {formatUpdated(project.updatedAt, locale)}
+        </span>
       </div>
     </li>
   );

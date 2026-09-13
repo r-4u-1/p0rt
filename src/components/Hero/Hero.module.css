@@ -202,9 +202,15 @@
   gap: var(--s-2) var(--s-4);
   font-family: var(--font-mono);
   font-size: var(--t-xs);
-  letter-spacing: calc(var(--tracking-wide) + var(--break) * 0.14em * var(--motion));
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  /* Stretches apart as the break lands. `scale`, not letter-spacing: wider
+     tracking reflows, and a role line one character from wrapping would
+     jump to an extra row mid-scroll. `scale` is also its own property, so
+     the fadeUp entrance can keep `transform` to itself. */
+  scale: calc(1 + var(--break) * 0.08 * var(--motion)) 1;
+  transform-origin: left center;
   animation: fadeUp calc(700ms * var(--motion)) var(--ease-out) both;
 }
 
@@ -216,8 +222,13 @@
   color: #8c94a4;
 }
 
+/* The display token scales with width alone, which on a wide-but-short
+   desktop screen fills the whole stage and shoves the kicker up under the
+   nav. Capping by height too keeps the headline sitting low, where the
+   bottom-aligned stage means it to. */
 .headline {
-  font-size: var(--t-display);
+  font-size: min(var(--t-display), 12vh);
+  font-size: min(var(--t-display), 12svh);
   line-height: var(--lh-tight);
   letter-spacing: -0.04em;
   max-width: 16ch;
@@ -230,6 +241,11 @@
   display: block;
   overflow: hidden;
   padding-bottom: 0.06em;
+  /* The line loosening as it breaks. Scaled rather than tracked out, for the
+     same reason as the kicker: letter-spacing reflows, and a line that fits
+     at rest would wrap partway through the scroll. */
+  scale: calc(1 + var(--break) * 0.07 * var(--motion)) 1;
+  transform-origin: left center;
   transform: translate3d(
       calc(var(--dir) * var(--crack) * 26vw * var(--motion)),
       calc(var(--crack) * var(--line-index, 0) * -1.5vh * var(--motion)),
@@ -252,7 +268,6 @@
   transform: translate3d(0, 110%, 0);
   animation: riseIn calc(1100ms * var(--motion)) var(--ease-out-quint) both;
   animation-delay: calc(var(--line-index, 0) * 120ms * var(--motion));
-  letter-spacing: calc(-0.04em + var(--break) * 0.04em * var(--motion));
   opacity: calc(1 - var(--crack) * 0.35);
 }
 

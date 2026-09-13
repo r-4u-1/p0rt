@@ -94,6 +94,15 @@
   z-index: var(--z-nav);
 }
 
+/*
+ * The two page-wide switches, language and motion. Neither belongs to any
+ * one section, so both live in the bar that is always on screen — and
+ * neither may shrink when the brand name is long.
+ */
+.control {
+  flex: none;
+}
+
 /* ---- Toggle (mobile) ------------------------------------------------ */
 .toggle {
   display: inline-flex;
@@ -265,6 +274,27 @@
 
   .panel[data-open='true'] .link:hover .linkIndex {
     color: var(--c-pulse);
+  }
+}
+
+/*
+ * Three controls and a name on a 375px screen. The bar has to give the
+ * brand a whole line before it gives the switches their breathing room —
+ * a name broken across two lines reads as a layout that ran out of room,
+ * which is exactly what it would be.
+ */
+@media (max-width: 479px) {
+  .header {
+    gap: var(--s-3);
+    padding-inline: var(--s-4);
+  }
+
+  .controls {
+    gap: 0.4rem;
+  }
+
+  .toggle {
+    padding: 0.55rem 0.8rem;
   }
 }
 

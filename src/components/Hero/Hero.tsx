@@ -1,17 +1,11 @@
+import type { HeroContent, ProfileContent } from '@/types/content';
 import { Icon } from '@/components/Icon';
 import { useScrollScene } from '@/hooks/useScrollScene';
 import styles from './Hero.module.css';
 
-export interface HeroStat {
-  readonly label: string;
-  readonly value: string;
-}
-
 export interface HeroProps {
-  readonly name: string;
-  readonly roleLine: string;
-  readonly headline: readonly string[];
-  readonly stats: readonly HeroStat[];
+  readonly profile: ProfileContent;
+  readonly content: HeroContent;
 }
 
 /**
@@ -24,10 +18,14 @@ export interface HeroProps {
  * identical under a finger on a phone and a wheel on a desktop, and the
  * whole scene collapses to a static single screen under
  * prefers-reduced-motion because `--motion: 0` removes the runway.
+ *
+ * The headline arrives as an array of lines rather than one string the
+ * component breaks up: where a line ends is a writing decision, and it is
+ * not the same decision in every language.
  */
-export function Hero({ name, roleLine, headline, stats }: HeroProps) {
+export function Hero({ profile, content }: HeroProps) {
   const sceneRef = useScrollScene<HTMLElement>();
-  const watermark = name.split(' ')[0];
+  const watermark = profile.name.split(' ')[0];
 
   return (
     <section
@@ -47,12 +45,12 @@ export function Hero({ name, roleLine, headline, stats }: HeroProps) {
 
         <div className={styles.content}>
           <p className={styles.kicker}>
-            <span className={styles.kickerName}>{name}</span>
-            <span className={styles.kickerRole}>{roleLine}</span>
+            <span className={styles.kickerName}>{profile.name}</span>
+            <span className={styles.kickerRole}>{profile.roleLine}</span>
           </p>
 
           <h1 id="hero-heading" className={styles.headline}>
-            {headline.map((line, index) => (
+            {content.headline.map((line, index) => (
               <span
                 key={line}
                 className={styles.lineMask}
@@ -66,7 +64,7 @@ export function Hero({ name, roleLine, headline, stats }: HeroProps) {
           </h1>
 
           <dl className={styles.stats}>
-            {stats.map((stat, index) => (
+            {content.stats.map((stat, index) => (
               <div
                 key={stat.label}
                 className={styles.stat}
@@ -81,12 +79,12 @@ export function Hero({ name, roleLine, headline, stats }: HeroProps) {
           <div className={styles.console}>
             <a data-ico-host className={styles.cue} href="#about">
               <span className={styles.cueLine} aria-hidden="true" />
-              Read on
+              {content.readOn}
               <Icon name="arrowDown" size={15} className={styles.cueIcon} />
             </a>
 
             <div className={styles.gauge} aria-hidden="true">
-              <span className={styles.gaugeLabel}>Integrity</span>
+              <span className={styles.gaugeLabel}>{content.gaugeLabel}</span>
               <span className={styles.gaugeTrack}>
                 {/*
                   Two nested scales, because two independent things move this

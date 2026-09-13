@@ -1,4 +1,5 @@
 import type { RoleKind, TimelineEntry } from '@/types/portfolio';
+import type { JourneyContent } from '@/types/content';
 import { Icon } from '@/components/Icon';
 import type { IconName } from '@/components/Icon';
 import { useInView } from '@/hooks/useInView';
@@ -8,14 +9,9 @@ import styles from './TimelineItem.module.css';
 export interface TimelineItemProps {
   readonly entry: TimelineEntry;
   readonly index: number;
+  /** The words the entry itself does not carry: kind, tense, tool list. */
+  readonly labels: Pick<JourneyContent, 'present' | 'kinds' | 'toolsLabel'>;
 }
-
-const KIND_LABEL: Record<RoleKind, string> = {
-  development: 'Development',
-  quality: 'Quality engineering',
-  leadership: 'Team facilitation',
-  education: 'Education',
-};
 
 /**
  * The marker carries the kind. A coloured dot needed a legend; a terminal,
@@ -34,11 +30,11 @@ const KIND_ICON: Record<RoleKind, IconName> = {
  * rows a visitor actually reaches — cheaper on mobile than one big observer
  * plus per-row delays.
  */
-export function TimelineItem({ entry, index }: TimelineItemProps) {
+export function TimelineItem({ entry, index, labels }: TimelineItemProps) {
   const reducedMotion = usePrefersReducedMotion();
   const { ref, inView } = useInView<HTMLLIElement>({ threshold: 0.25 });
   const visible = reducedMotion || inView;
-  const period = `${entry.start} – ${entry.end ?? 'present'}`;
+  const period = `${entry.start} – ${entry.end ?? labels.present}`;
 
   return (
     <li
@@ -57,7 +53,7 @@ export function TimelineItem({ entry, index }: TimelineItemProps) {
       <article className={styles.card}>
         <p className={styles.period}>
           <time dateTime={entry.start}>{period}</time>
-          <span className={styles.kind}>{KIND_LABEL[entry.kind]}</span>
+          <span className={styles.kind}>{labels.kinds[entry.kind]}</span>
         </p>
 
         <h3 className={styles.role}>{entry.role}</h3>
@@ -72,7 +68,7 @@ export function TimelineItem({ entry, index }: TimelineItemProps) {
           ))}
         </ul>
 
-        <ul className={styles.stack} aria-label={`Tools used as ${entry.role}`}>
+        <ul className={styles.stack} aria-label={labels.toolsLabel.replace('{role}', entry.role)}>
           {entry.stack.map((tool, toolIndex) => (
             <li
               key={tool}

@@ -47,3 +47,41 @@ test('project cards link out to GitHub', async ({ page }) => {
   await expect(card).toHaveAttribute('href', 'https://github.com/example/local-rag-notes');
   await expect(card).toHaveAttribute('target', '_blank');
 });
+
+/*
+ * The language control is the one button that changes every other thing on
+ * the page, and the one whose effect has to outlive the tab. Both halves are
+ * worth a real browser: jsdom cannot tell us that the choice survived a
+ * reload, because it never actually reloads.
+ */
+test('switching language rewrites the page and remembers the choice', async ({ page }) => {
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+
+  await page.getByTestId('language-toggle').click();
+
+  await expect(page.locator('html')).toHaveAttribute('lang', 'sv');
+  await expect(page.locator('#about h2')).toHaveText('Tre stolar, en produkt');
+
+  await page.reload();
+
+  await expect(page.locator('html')).toHaveAttribute('lang', 'sv');
+  await expect(page.locator('#about h2')).toHaveText('Tre stolar, en produkt');
+});
+
+/*
+ * The default is a decision, not a guess: a visitor whose browser asks for
+ * Swedish still lands on the English page, and only the toggle changes that.
+ */
+test.describe('on a Swedish browser', () => {
+  test.use({ locale: 'sv-SE' });
+
+  test('the page still opens in English until the visitor switches', async ({ page }) => {
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('#about h2')).not.toHaveText('Tre stolar, en produkt');
+
+    await page.getByTestId('language-toggle').click();
+
+    await expect(page.locator('html')).toHaveAttribute('lang', 'sv');
+    await expect(page.locator('#about h2')).toHaveText('Tre stolar, en produkt');
+  });
+});

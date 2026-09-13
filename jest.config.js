@@ -6,6 +6,8 @@ module.exports = {
     '\\.module\\.css$': 'identity-obj-proxy',
     '\\.(css|less|scss|svg|png|jpg|webp)$': '<rootDir>/src/test/fileMock.js',
     '^@/(.*)$': '<rootDir>/src/$1',
+    // Placeholders unless SITE_CONTENT / SITE_CONTENT_FILE is set; see the file.
+    '^virtual:site-content$': '<rootDir>/config/siteContent.jest.ts',
   },
   testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
   collectCoverageFrom: [

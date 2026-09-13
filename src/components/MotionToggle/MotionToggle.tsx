@@ -1,7 +1,9 @@
+import type { UiContent } from '@/types/content';
 import { useMotionPreference } from '@/hooks/useMotionPreference';
 import styles from './MotionToggle.module.css';
 
 export interface MotionToggleProps {
+  readonly labels: UiContent['motion'];
   readonly className?: string;
 }
 
@@ -18,7 +20,7 @@ export interface MotionToggleProps {
  * keep in sync, and it demonstrates what the control does before you press
  * it. `aria-pressed` carries the same fact to assistive technology.
  */
-export function MotionToggle({ className }: MotionToggleProps) {
+export function MotionToggle({ labels, className }: MotionToggleProps) {
   const { reduced, toggle } = useMotionPreference();
 
   return (
@@ -28,14 +30,14 @@ export function MotionToggle({ className }: MotionToggleProps) {
       className={[styles.button, className].filter(Boolean).join(' ')}
       aria-pressed={!reduced}
       data-testid="motion-toggle"
-      title={reduced ? 'Turn page animation on' : 'Turn page animation off'}
+      title={reduced ? labels.turnOn : labels.turnOff}
     >
       <span className={styles.meter} aria-hidden="true">
         <span className={styles.bar} />
         <span className={styles.bar} />
         <span className={styles.bar} />
       </span>
-      <span className={styles.label}>Motion</span>
+      <span className={styles.label}>{labels.label}</span>
     </button>
   );
 }

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import type { NavItem } from '@/data/navigation';
+import type { NavItem } from '@/types/content';
 import { useSectionProgress } from '@/hooks/useSectionProgress';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import styles from './ScrollSpine.module.css';
@@ -7,6 +7,8 @@ import styles from './ScrollSpine.module.css';
 export interface ScrollSpineProps {
   readonly items: readonly NavItem[];
   readonly activeId?: string;
+  /** Accessible name of the marker column, once it is a real navigation. */
+  readonly label: string;
 }
 
 /** Matches the breakpoint at which the stylesheet grows the marker column. */
@@ -33,7 +35,7 @@ const MAP_QUERY = '(min-width: 1100px)';
  * labelled navigation with real buttons. Below that width nothing is
  * rendered at all, so a phone gains no tab stops for a control it cannot see.
  */
-export function ScrollSpine({ items, activeId = '' }: ScrollSpineProps) {
+export function ScrollSpine({ items, activeId = '', label }: ScrollSpineProps) {
   const ids = useMemo(() => items.map((item) => item.id), [items]);
   const progress = useSectionProgress(ids);
   const isMap = useMediaQuery(MAP_QUERY);
@@ -58,7 +60,7 @@ export function ScrollSpine({ items, activeId = '' }: ScrollSpineProps) {
       </div>
 
       {isMap ? (
-        <nav className={styles.nodes} aria-label="Section progress">
+        <nav className={styles.nodes} aria-label={label}>
           <ol className={styles.nodeList}>
             {items.map((item, index) => (
               <li

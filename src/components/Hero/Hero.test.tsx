@@ -1,21 +1,23 @@
 import { render, screen } from '@testing-library/react';
 import { axe } from 'jest-axe';
 import { Hero } from './Hero';
+import { en } from '@/test/content';
+
+const profile = { ...en.profile, name: 'Test Person', roleLine: 'Developer, tester, facilitator' };
 
 const stats = [
   { label: 'Now', value: 'Fullstack developer' },
   { label: 'Also', value: 'Test automation' },
 ];
 
+const hero = {
+  ...en.hero,
+  headline: ['I build it,', 'then I try', 'to break it.'],
+  stats,
+};
+
 function renderHero() {
-  return render(
-    <Hero
-      name="Test Person"
-      roleLine="Developer, tester, facilitator"
-      headline={['I build it,', 'then I try', 'to break it.']}
-      stats={stats}
-    />,
-  );
+  return render(<Hero profile={profile} content={hero} />);
 }
 
 describe('Hero', () => {

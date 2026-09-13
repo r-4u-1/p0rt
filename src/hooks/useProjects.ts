@@ -37,8 +37,10 @@ export function useProjects(
       })
       .catch(async (error: unknown) => {
         if (!active || controller.signal.aborted) return;
-        const message =
-          error instanceof Error ? error.message : 'Could not reach GitHub.';
+        // The reason, verbatim and untranslated: it came from GitHub, and a
+        // guess at what it meant would be worse than the sentence itself.
+        // What the page does about it is the component's line to write.
+        const message = error instanceof Error ? error.message : 'Could not reach GitHub.';
 
         if (!fallback) {
           setState({ status: 'error', projects: [], message });
@@ -47,11 +49,7 @@ export function useProjects(
         try {
           const projects = await fallback.list({ limit });
           if (!active) return;
-          setState({
-            status: 'fallback',
-            projects,
-            message: `${message} Showing a saved selection instead.`,
-          });
+          setState({ status: 'fallback', projects, message });
         } catch {
           if (active) setState({ status: 'error', projects: [], message });
         }

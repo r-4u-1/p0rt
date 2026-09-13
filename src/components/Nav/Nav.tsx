@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import type { NavItem } from '@/data/navigation';
+import type { NavItem, UiContent } from '@/types/content';
 import { MotionToggle } from '@/components/MotionToggle';
+import { LanguageToggle } from '@/components/LanguageToggle';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import styles from './Nav.module.css';
 
@@ -9,6 +10,8 @@ export interface NavProps {
   /** Section id currently in view, used for the active marker. */
   readonly activeId?: string;
   readonly brand: string;
+  /** Every word this bar says, in the language the page is in. */
+  readonly ui: UiContent;
 }
 
 /**
@@ -16,7 +19,7 @@ export interface NavProps {
  * is an inline bar or a full-screen panel, so there is a single source of
  * truth for the menu on every breakpoint.
  */
-export function Nav({ items, activeId = '', brand }: NavProps) {
+export function Nav({ items, activeId = '', brand, ui }: NavProps) {
   const [open, setOpen] = useState(false);
   const [condensed, setCondensed] = useState(false);
   const panelId = useId();
@@ -53,7 +56,8 @@ export function Nav({ items, activeId = '', brand }: NavProps) {
       </a>
 
       <div className={styles.controls}>
-        <MotionToggle className={styles.motion} />
+        <LanguageToggle labels={ui.language} className={styles.control} />
+        <MotionToggle labels={ui.motion} className={styles.control} />
 
         <button
           ref={toggleRef}
@@ -67,7 +71,7 @@ export function Nav({ items, activeId = '', brand }: NavProps) {
             <span />
             <span />
           </span>
-          {open ? 'Close' : 'Menu'}
+          {open ? ui.menu.close : ui.menu.open}
         </button>
       </div>
 
@@ -75,7 +79,7 @@ export function Nav({ items, activeId = '', brand }: NavProps) {
         id={panelId}
         className={styles.panel}
         data-open={open ? 'true' : 'false'}
-        aria-label="Sections"
+        aria-label={ui.menu.sectionsLabel}
       >
         <ul className={styles.list}>
           {items.map((item, index) => {

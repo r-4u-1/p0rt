@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { SkipLink } from '@/components/SkipLink';
 import { Nav } from '@/components/Nav';
 import { ScrollSpine } from '@/components/ScrollSpine';
@@ -12,21 +13,24 @@ import { Contact } from '@/components/Contact';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useScrollVelocity } from '@/hooks/useScrollVelocity';
 import { useQualityGuard } from '@/hooks/useQualityGuard';
-import { navItems } from '@/data/navigation';
-import { profile } from '@/data/profile';
-import { skillGroups } from '@/data/skills';
-import { timeline } from '@/data/timeline';
-import { principles } from '@/data/principles';
-import { exploreTopics } from '@/data/explore';
-import { heroHeadline, heroStats } from '@/data/hero';
-
-const sectionIds = ['home', ...navItems.map((item) => item.id)];
+import { useLanguage } from '@/hooks/useLanguage';
 
 /**
- * Composition root. It wires data to components and nothing else — every
+ * Composition root. It wires content to components and nothing else — every
  * section below is independently testable and reusable.
+ *
+ * This is also the only place that knows the page has two languages. The
+ * store is read once here, and each section is handed the words for its own
+ * part in whichever language is current; nothing below this file imports a
+ * language file or asks which one is active. Switching language is therefore
+ * an ordinary re-render with different props, not a reload and not a route.
  */
 export default function App() {
+  const { content } = useLanguage();
+  const sectionIds = useMemo(
+    () => ['home', ...content.nav.map((item) => item.id)],
+    [content.nav],
+  );
   const activeId = useActiveSection(sectionIds, 'home');
 
   // Two page-wide measurements, published as attributes and custom
@@ -39,26 +43,30 @@ export default function App() {
 
   return (
     <>
-      <SkipLink targetId="main" />
-      <Nav items={navItems} activeId={activeId} brand={profile.name} />
-      <ScrollSpine items={navItems} activeId={activeId} />
+      <SkipLink targetId="main" label={content.ui.skipToContent} />
+      <Nav
+        items={content.nav}
+        activeId={activeId}
+        brand={content.profile.name}
+        ui={content.ui}
+      />
+      <ScrollSpine items={content.nav} activeId={activeId} label={content.ui.spine.label} />
 
       <main id="main">
-        <Hero
-          name={profile.name}
-          roleLine={profile.roleLine}
-          headline={heroHeadline}
-          stats={heroStats}
+        <Hero profile={content.profile} content={content.hero} />
+        <About profile={content.profile} content={content.about} />
+        <StackMatrix content={content.stack} />
+        <Projects
+          content={content.projects}
+          githubUser={content.profile.githubUser}
+          locale={content.meta.locale}
         />
-        <About profile={profile} />
-        <StackMatrix groups={skillGroups} />
-        <Projects githubUser={profile.githubUser} />
-        <Timeline entries={timeline} />
-        <Approach principles={principles} />
-        <Exploring topics={exploreTopics} />
+        <Timeline content={content.journey} />
+        <Approach content={content.approach} />
+        <Exploring content={content.exploring} />
       </main>
 
-      <Contact profile={profile} />
+      <Contact profile={content.profile} content={content.contact} />
     </>
   );
 }

@@ -2,6 +2,7 @@ import { act, render, screen, within } from '@testing-library/react';
 import { axe } from 'jest-axe';
 import { PINNABLE, StackMatrix } from './StackMatrix';
 import type { SkillGroup } from '@/types/portfolio';
+import { en } from '@/test/content';
 import { installMatchMedia } from '@/test/media';
 import { setMotionSetting } from '@/motion/motionPreference';
 
@@ -23,22 +24,24 @@ const groups: readonly SkillGroup[] = [
   },
 ];
 
+const stack = { ...en.stack, groups };
+
 describe('StackMatrix', () => {
   it('renders a group per category', () => {
-    render(<StackMatrix groups={groups} />);
+    render(<StackMatrix content={stack} />);
     expect(screen.getByRole('heading', { name: 'Languages' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'AI in practice' })).toBeInTheDocument();
   });
 
   it('states proficiency in words, not only as a bar', () => {
-    render(<StackMatrix groups={groups} />);
+    render(<StackMatrix content={stack} />);
     expect(screen.getByText('Daily')).toBeInTheDocument();
     expect(screen.getByText('Working knowledge')).toBeInTheDocument();
     expect(screen.getByText('Learning now')).toBeInTheDocument();
   });
 
   it('keeps each skill inside its own group', () => {
-    render(<StackMatrix groups={groups} />);
+    render(<StackMatrix content={stack} />);
     const languages = screen.getByRole('heading', { name: 'Languages' }).closest('li');
     expect(languages).not.toBeNull();
     expect(within(languages as HTMLElement).getByText('TypeScript')).toBeInTheDocument();
@@ -46,13 +49,13 @@ describe('StackMatrix', () => {
   });
 
   it('shows the optional note only when there is one', () => {
-    render(<StackMatrix groups={groups} />);
+    render(<StackMatrix content={stack} />);
     expect(screen.getByText('Default for front end')).toBeInTheDocument();
     expect(screen.queryByText('undefined')).toBeNull();
   });
 
   it('has no detectable accessibility violations', async () => {
-    const { container } = render(<StackMatrix groups={groups} />);
+    const { container } = render(<StackMatrix content={stack} />);
     expect(await axe(container)).toHaveNoViolations();
   });
 
@@ -73,7 +76,7 @@ describe('StackMatrix', () => {
     it('is a keyboard-reachable scroll container on a screen too short to pin', () => {
       installMatchMedia({ [PINNABLE]: false });
 
-      render(<StackMatrix groups={groups} />);
+      render(<StackMatrix content={stack} />);
 
       expect(rail()).toHaveAttribute('tabindex', '0');
       expect(rail()).toHaveAccessibleName(/scrolls sideways/i);
@@ -82,7 +85,7 @@ describe('StackMatrix', () => {
     it('drops the tab stop once page scroll is driving the traverse', () => {
       installMatchMedia({ [PINNABLE]: true });
 
-      render(<StackMatrix groups={groups} />);
+      render(<StackMatrix content={stack} />);
 
       expect(rail()).not.toHaveAttribute('tabindex');
       expect(rail()).not.toHaveAttribute('role');
@@ -97,7 +100,7 @@ describe('StackMatrix', () => {
       installMatchMedia({ [PINNABLE]: true });
       setMotionSetting('off');
 
-      render(<StackMatrix groups={groups} />);
+      render(<StackMatrix content={stack} />);
 
       expect(rail()).toHaveAttribute('tabindex', '0');
     });
@@ -113,7 +116,7 @@ describe('StackMatrix', () => {
         [PINNABLE]: true,
         '(prefers-reduced-motion: reduce)': true,
       });
-      render(<StackMatrix groups={groups} />);
+      render(<StackMatrix content={stack} />);
       expect(rail()).toHaveAttribute('tabindex', '0');
 
       act(() => setMotionSetting('on'));
@@ -123,19 +126,19 @@ describe('StackMatrix', () => {
 
     it('renders every group in both modes', () => {
       installMatchMedia({ [PINNABLE]: true });
-      const { unmount } = render(<StackMatrix groups={groups} />);
+      const { unmount } = render(<StackMatrix content={stack} />);
       expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(groups.length);
       unmount();
 
       installMatchMedia({ [PINNABLE]: false });
-      render(<StackMatrix groups={groups} />);
+      render(<StackMatrix content={stack} />);
       expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(groups.length);
     });
 
     it('reports the traverse with one readout, whichever mode is driving it', () => {
       installMatchMedia({ [PINNABLE]: false });
 
-      render(<StackMatrix groups={groups} />);
+      render(<StackMatrix content={stack} />);
 
       const readout = document.querySelector('[class*="readout"]') as HTMLElement;
       expect(readout).toHaveAttribute('aria-hidden', 'true');
@@ -145,7 +148,7 @@ describe('StackMatrix', () => {
     it('has no accessibility violations in the scrollable mode', async () => {
       installMatchMedia({ [PINNABLE]: false });
 
-      const { container } = render(<StackMatrix groups={groups} />);
+      const { container } = render(<StackMatrix content={stack} />);
 
       expect(await axe(container)).toHaveNoViolations();
     });

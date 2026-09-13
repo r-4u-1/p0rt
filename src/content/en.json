@@ -1,0 +1,363 @@
+{
+  "language": "en",
+  "meta": {
+    "documentTitle": "Your Name — Fullstack developer, test automation, scrum master",
+    "documentDescription": "Portfolio of a fullstack developer and test automation engineer working with TypeScript, React, Python, Java and local AI.",
+    "locale": "en-GB",
+    "languageName": "English"
+  },
+  "ui": {
+    "skipToContent": "Skip to main content",
+    "menu": {
+      "open": "Menu",
+      "close": "Close",
+      "sectionsLabel": "Sections"
+    },
+    "spine": {
+      "label": "Section progress"
+    },
+    "motion": {
+      "label": "Motion",
+      "turnOn": "Turn page animation on",
+      "turnOff": "Turn page animation off"
+    },
+    "language": {
+      "label": "Language",
+      "switchTo": "Byt till svenska"
+    }
+  },
+  "profile": {
+    "name": "Your Name",
+    "githubUser": "your-github-handle",
+    "roleLine": "Fullstack developer · test automation · scrum master",
+    "location": "Sweden — remote or hybrid",
+    "availability": "Open to new roles"
+  },
+  "nav": [
+    { "id": "about", "label": "About" },
+    { "id": "stack", "label": "Stack" },
+    { "id": "projects", "label": "Projects" },
+    { "id": "journey", "label": "Journey" },
+    { "id": "approach", "label": "Approach" },
+    { "id": "exploring", "label": "Exploring" },
+    { "id": "contact", "label": "Contact" }
+  ],
+  "hero": {
+    "headline": ["I build it,", "then I try", "to break it."],
+    "stats": [
+      {
+        "label": "Now",
+        "value": "Fullstack developer — TypeScript and React on the front, Node and Java behind it."
+      },
+      {
+        "label": "Also",
+        "value": "Test automation across Playwright, pytest and Percy. Three years as scrum master."
+      },
+      {
+        "label": "After hours",
+        "value": "Local models on Ollama, retrieval pipelines, and a robotics kit waiting on the desk."
+      }
+    ],
+    "readOn": "Read on",
+    "gaugeLabel": "Integrity"
+  },
+  "about": {
+    "eyebrow": "About",
+    "title": "Three seats, one product",
+    "lead": "Developer, test automation engineer, scrum master. The same product seen from three angles, which turns out to be the useful part.",
+    "intro": [
+      "I build web applications end to end and then I try very hard to break them. Ten of those years have been spent moving between three seats — writing the feature, automating the tests that keep it honest, and facilitating the team that ships it.",
+      "Day to day that means JavaScript and TypeScript on React front ends, Python and Java on the back, and a C# service when the platform calls for it. I care most about the part people rarely see: a suite that fails for the right reason, a component that stays readable a year later, an interface that works with a keyboard.",
+      "Outside work I run models locally with Ollama and pair with Claude on side projects, mostly to understand where AI actually earns its place in a workflow and where it just adds noise."
+    ],
+    "factsTitle": "Quick facts",
+    "facts": [
+      { "label": "Based in", "value": "Sweden" },
+      { "label": "Working style", "value": "Remote / hybrid" },
+      { "label": "Education", "value": "Fullstack developer" },
+      { "label": "Languages", "value": "Swedish, English" }
+    ]
+  },
+  "stack": {
+    "eyebrow": "Stack",
+    "title": "What I reach for",
+    "lead": "Honest levels rather than a wall of logos. Daily means I wrote some this week; learning now means I would need a code review.",
+    "levels": {
+      "core": "Daily",
+      "strong": "Confident",
+      "working": "Working knowledge",
+      "exploring": "Learning now"
+    },
+    "groups": [
+      {
+        "id": "languages",
+        "title": "Languages",
+        "caption": "What I write in every week",
+        "skills": [
+          { "name": "TypeScript", "level": "core", "note": "Default for anything front end" },
+          { "name": "JavaScript", "level": "core", "note": "Node and browser" },
+          { "name": "Python", "level": "strong", "note": "Automation, data, AI tooling" },
+          { "name": "Java", "level": "strong", "note": "Java EE services" },
+          { "name": "C#", "level": "working", "note": "Enough to be useful on a .NET team" },
+          { "name": "SQL", "level": "working", "note": "Postgres and MySQL" }
+        ]
+      },
+      {
+        "id": "building",
+        "title": "Building",
+        "caption": "Frameworks and runtimes",
+        "skills": [
+          { "name": "React", "level": "core", "note": "Hooks, composition, CSS Modules" },
+          { "name": "MERN stack", "level": "strong", "note": "Mongo, Express, React, Node" },
+          { "name": "Java EE", "level": "strong", "note": "Enterprise services and APIs" },
+          { "name": "REST & JSON APIs", "level": "core" },
+          { "name": "Git & CI/CD", "level": "strong", "note": "GitHub Actions pipelines" }
+        ]
+      },
+      {
+        "id": "quality",
+        "title": "Quality",
+        "caption": "The part I am known for",
+        "skills": [
+          { "name": "Jest + Testing Library", "level": "core", "note": "Unit and component" },
+          { "name": "Playwright", "level": "core", "note": "End to end, cross browser" },
+          { "name": "TestCafe", "level": "strong", "note": "Legacy suites and migrations" },
+          { "name": "pytest", "level": "strong", "note": "Service and integration tests" },
+          { "name": "Percy", "level": "strong", "note": "Visual regression on every PR" },
+          {
+            "name": "Accessibility testing",
+            "level": "working",
+            "note": "axe, keyboard, screen reader"
+          }
+        ]
+      },
+      {
+        "id": "ai",
+        "title": "AI in practice",
+        "caption": "Mostly private projects, increasingly at work",
+        "skills": [
+          { "name": "Claude", "level": "strong", "note": "Pairing, review, test generation" },
+          {
+            "name": "Ollama & local models",
+            "level": "working",
+            "note": "Offline, private by default"
+          },
+          { "name": "Prompt & context design", "level": "working" },
+          { "name": "RAG pipelines", "level": "exploring", "note": "Retrieval over own documents" },
+          { "name": "Eval harnesses", "level": "exploring", "note": "Measuring, not vibing" }
+        ]
+      }
+    ],
+    "readoutLabel": "Stack",
+    "groupsSuffix": "groups",
+    "railLabel": "Skill groups, scrolls sideways"
+  },
+  "projects": {
+    "eyebrow": "Projects",
+    "title": "Live from GitHub",
+    "lead": "Pulled from the public API when the page loads, sorted by stars then recency. If GitHub is unreachable you get a saved selection instead.",
+    "loading": "Loading repositories from GitHub…",
+    "ready": { "one": "public repository", "other": "public repositories" },
+    "fallbackSuffix": "Showing a saved selection instead.",
+    "error": "Could not load repositories.",
+    "browseAt": "You can still browse everything at {link}.",
+    "allRepositories": "All repositories on GitHub",
+    "opensOnGitHub": "(opens on GitHub in a new tab)",
+    "updated": "Updated",
+    "stars": { "one": "star", "other": "stars" }
+  },
+  "journey": {
+    "eyebrow": "Journey",
+    "title": "Where I have worked",
+    "lead": "Ten years, three job titles, one consistent interest: making it work and proving that it does.",
+    "present": "present",
+    "kinds": {
+      "development": "Development",
+      "quality": "Quality engineering",
+      "leadership": "Team facilitation",
+      "education": "Education"
+    },
+    "toolsLabel": "Tools used as {role}",
+    "entries": [
+      {
+        "id": "fullstack-dev",
+        "role": "Fullstack developer",
+        "organisation": "Current employer",
+        "start": "2022",
+        "kind": "development",
+        "summary": "Feature work across a React and TypeScript front end with Node and Java services behind it.",
+        "highlights": [
+          "Rebuilt a legacy view as composable React components with CSS Modules, cutting render cost on mobile.",
+          "Introduced Percy visual regression so design changes stop arriving as surprises.",
+          "Mentor two junior developers through code review and pairing."
+        ],
+        "stack": ["TypeScript", "React", "Node", "Java EE", "Jest", "Playwright"]
+      },
+      {
+        "id": "scrum-master",
+        "role": "Scrum master",
+        "organisation": "Previous employer",
+        "start": "2020",
+        "end": "2022",
+        "kind": "leadership",
+        "summary": "Facilitated two delivery teams while staying hands-on in the codebase roughly half the week.",
+        "highlights": [
+          "Ran refinement, retros and planning for teams of six to nine people.",
+          "Cut lead time by making the definition of done include automated coverage.",
+          "Kept writing code — a scrum master who cannot read the backlog technically is a messenger."
+        ],
+        "stack": ["Scrum", "Kanban", "Jira", "TypeScript", "Python"]
+      },
+      {
+        "id": "test-automation",
+        "role": "Test automation engineer",
+        "organisation": "Previous employer",
+        "start": "2017",
+        "end": "2020",
+        "kind": "quality",
+        "summary": "Owned the automated test estate: unit, integration, end to end and visual.",
+        "highlights": [
+          "Migrated a brittle TestCafe suite to Playwright, taking runtime from 40 to 11 minutes.",
+          "Built pytest service tests that run against ephemeral environments in CI.",
+          "Made flaky tests a tracked defect class rather than something people re-ran."
+        ],
+        "stack": ["Playwright", "TestCafe", "pytest", "Python", "C#", "GitHub Actions"]
+      },
+      {
+        "id": "developer",
+        "role": "Developer",
+        "organisation": "First developer role",
+        "start": "2015",
+        "end": "2017",
+        "kind": "development",
+        "summary": "Built and maintained internal web tools on a MERN stack.",
+        "highlights": [
+          "Shipped the first React rewrite of an internal admin tool.",
+          "Wrote the team's first Jest tests and the habit stuck."
+        ],
+        "stack": ["JavaScript", "React", "Express", "MongoDB", "Jest"]
+      },
+      {
+        "id": "education",
+        "role": "Fullstack developer programme",
+        "organisation": "Vocational higher education",
+        "start": "2013",
+        "end": "2015",
+        "kind": "education",
+        "summary": "Two years of fullstack training with internship placements, from databases to deployment.",
+        "highlights": [
+          "Java and JavaScript foundations, relational databases, agile methodology.",
+          "Graduated with a MERN application as the final project."
+        ],
+        "stack": ["Java", "JavaScript", "SQL", "HTML & CSS"]
+      }
+    ]
+  },
+  "approach": {
+    "eyebrow": "Approach",
+    "title": "How I work",
+    "lead": "Five things I will bring to your team on day one, whichever of the three seats you put me in.",
+    "principles": [
+      {
+        "id": "tests-are-design",
+        "title": "Tests are a design tool",
+        "body": "If a component is hard to test it is usually badly shaped. I write the test to find that out early, not to satisfy a coverage gate."
+      },
+      {
+        "id": "small-surfaces",
+        "title": "Small surfaces, clear seams",
+        "body": "One reason to change per module, dependencies pointing at interfaces rather than implementations. This page is built that way — the project list does not know GitHub exists."
+      },
+      {
+        "id": "accessible-default",
+        "title": "Accessible by default",
+        "body": "Keyboard paths, focus order, contrast and reduced motion are part of done. Automated axe checks catch the obvious; I check the rest by hand."
+      },
+      {
+        "id": "facilitate",
+        "title": "Facilitation is engineering work",
+        "body": "Three years as scrum master taught me that most delivery problems are unclear scope, not slow typing. I still run refinement I am invited to."
+      },
+      {
+        "id": "ai-with-evidence",
+        "title": "AI with a measurement attached",
+        "body": "I use Claude and local models daily, and I treat their output like any contribution — reviewed, tested, and rejected when it is wrong."
+      }
+    ]
+  },
+  "exploring": {
+    "eyebrow": "Exploring",
+    "title": "What I am learning next",
+    "lead": "I would rather show you the edge of what I know than pretend it is not there. These are the six things currently taking up my evenings.",
+    "statuses": {
+      "building": "Building something",
+      "reading": "Reading and testing",
+      "next": "Up next"
+    },
+    "topics": [
+      {
+        "id": "mobile",
+        "title": "Mobile applications",
+        "why": "I know the web deeply. I want the same fluency on a device — React Native first, then enough native to know when the abstraction leaks.",
+        "status": "building"
+      },
+      {
+        "id": "rag",
+        "title": "Retrieval augmented generation",
+        "why": "Chunking, embeddings and ranking are where most RAG systems quietly fail. I want to build one properly instead of gluing a vector store to a prompt.",
+        "status": "building"
+      },
+      {
+        "id": "harness",
+        "title": "Evaluation harnesses",
+        "why": "Test automation instincts applied to models. If I cannot measure a change in output quality, I have not really changed anything.",
+        "status": "reading"
+      },
+      {
+        "id": "local-ai",
+        "title": "Local and private AI",
+        "why": "Ollama on my own hardware, small models fine-tuned for narrow jobs, no data leaving the machine. Useful and genuinely fun.",
+        "status": "building"
+      },
+      {
+        "id": "ai-general",
+        "title": "AI, past the API call",
+        "why": "Enough of the underlying mechanics — tokenisation, context, tool use — to reason about limits rather than guess at them.",
+        "status": "reading"
+      },
+      {
+        "id": "robotics",
+        "title": "Robotics",
+        "why": "Software that moves something physical has a feedback loop nothing else does. Starting with microcontrollers and sensors.",
+        "status": "next"
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Hiring, or just curious? Write to me.",
+    "lead": "I reply to everything that is not a recruitment bot, usually within a day.",
+    "channels": [
+      {
+        "id": "email",
+        "label": "Email",
+        "value": "hello@example.com",
+        "href": "mailto:hello@example.com"
+      },
+      {
+        "id": "github",
+        "label": "GitHub",
+        "value": "github.com/your-github-handle",
+        "href": "https://github.com/your-github-handle"
+      },
+      {
+        "id": "linkedin",
+        "label": "LinkedIn",
+        "value": "linkedin.com/in/your-handle",
+        "href": "https://www.linkedin.com/in/your-handle"
+      }
+    ],
+    "colophon": "Built with React, TypeScript and CSS Modules. Tested with Jest, Testing Library, Playwright and Percy. Deployed from GitHub Actions to GitHub Pages.",
+    "backToTop": "Back to top"
+  }
+}

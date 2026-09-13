@@ -3,6 +3,14 @@ import { axe } from 'jest-axe';
 import { Projects } from './Projects';
 import { renderWithServices } from '@/test/renderWithServices';
 import { FakeProjectSource, makeProject } from '@/test/fakeProjectSource';
+import { en } from '@/test/content';
+
+/** The three props every case passes; only the injected sources differ. */
+const props = {
+  content: en.projects,
+  githubUser: 'octocat',
+  locale: en.meta.locale,
+};
 
 const projects = [
   makeProject({ id: '1', name: 'local-rag-notes', language: 'Python', stars: 4 }),
@@ -11,7 +19,7 @@ const projects = [
 
 describe('Projects', () => {
   it('announces loading before the repositories arrive', () => {
-    renderWithServices(<Projects githubUser="octocat" />, {
+    renderWithServices(<Projects {...props} />, {
       services: { projectSource: new FakeProjectSource(projects) },
     });
 
@@ -20,7 +28,7 @@ describe('Projects', () => {
   });
 
   it('renders a card per repository once loaded', async () => {
-    renderWithServices(<Projects githubUser="octocat" />, {
+    renderWithServices(<Projects {...props} />, {
       services: { projectSource: new FakeProjectSource(projects) },
     });
 
@@ -32,7 +40,7 @@ describe('Projects', () => {
   });
 
   it('removes the loading skeletons when the data resolves', async () => {
-    renderWithServices(<Projects githubUser="octocat" />, {
+    renderWithServices(<Projects {...props} />, {
       services: { projectSource: new FakeProjectSource(projects) },
     });
 
@@ -44,7 +52,7 @@ describe('Projects', () => {
     const failing = new FakeProjectSource([], new Error('GitHub rate limit reached.'));
     const fallback = new FakeProjectSource([makeProject({ id: '9', name: 'saved-repo' })]);
 
-    renderWithServices(<Projects githubUser="octocat" />, {
+    renderWithServices(<Projects {...props} />, {
       services: { projectSource: failing, fallbackSource: fallback },
     });
 
@@ -56,7 +64,7 @@ describe('Projects', () => {
   it('points visitors at GitHub when nothing can be loaded at all', async () => {
     const failing = new FakeProjectSource([], new Error('Network down.'));
 
-    renderWithServices(<Projects githubUser="octocat" />, {
+    renderWithServices(<Projects {...props} />, {
       services: { projectSource: failing, fallbackSource: failing },
     });
 
@@ -68,7 +76,7 @@ describe('Projects', () => {
 
   it('asks the source for no more repositories than it will render', async () => {
     const source = new FakeProjectSource(projects);
-    renderWithServices(<Projects githubUser="octocat" limit={2} />, {
+    renderWithServices(<Projects {...props} limit={2} />, {
       services: { projectSource: source },
     });
 
@@ -77,7 +85,7 @@ describe('Projects', () => {
   });
 
   it('has no detectable accessibility violations once loaded', async () => {
-    const { container } = renderWithServices(<Projects githubUser="octocat" />, {
+    const { container } = renderWithServices(<Projects {...props} />, {
       services: { projectSource: new FakeProjectSource(projects) },
     });
 

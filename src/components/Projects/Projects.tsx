@@ -1,3 +1,4 @@
+import type { ProjectsContent } from '@/types/content';
 import { Section } from '@/components/Section';
 import { Reveal } from '@/components/Reveal';
 import { Icon } from '@/components/Icon';
@@ -9,7 +10,10 @@ import { ProjectCard } from './ProjectCard';
 import styles from './Projects.module.css';
 
 export interface ProjectsProps {
+  readonly content: ProjectsContent;
   readonly githubUser: string;
+  /** BCP-47 tag for the dates on the cards. */
+  readonly locale: string;
   readonly limit?: number;
 }
 
@@ -17,19 +21,29 @@ export interface ProjectsProps {
  * Container component. It wires a data source to presentation and owns
  * nothing else — the cards stay pure, and swapping GitHub for another
  * source means changing the provider, not this file.
+ *
+ * The status line is assembled here rather than in the hook, because it is
+ * the only half of it that can be translated: the reason a request failed
+ * comes from GitHub in whatever language GitHub chose, and the sentence
+ * around it — "showing a saved selection instead" — is ours.
  */
-export function Projects({ githubUser, limit = 6 }: ProjectsProps) {
+export function Projects({ content, githubUser, locale, limit = 6 }: ProjectsProps) {
   const { projectSource, fallbackSource } = useServices();
   const { status, projects, message } = useProjects(projectSource, fallbackSource, limit);
   const driftRef = useScrollProgress<HTMLDivElement>();
   const spotRef = usePointerSpot<HTMLDivElement>('[data-project-card]');
 
+  const counted = projects.length === 1 ? content.ready.one : content.ready.other;
+  // Word order around the link is not the same in every language, so the
+  // sentence owns the position and the component fills the hole.
+  const [beforeLink, afterLink] = content.browseAt.split('{link}');
+
   return (
     <Section
       id="projects"
-      eyebrow="Projects"
-      title="Live from GitHub"
-      lead="Pulled from the public API when the page loads, sorted by stars then recency. If GitHub is unreachable you get a saved selection instead."
+      eyebrow={content.eyebrow}
+      title={content.title}
+      lead={content.lead}
       surface="paper"
     >
       <div
@@ -38,10 +52,10 @@ export function Projects({ githubUser, limit = 6 }: ProjectsProps) {
         aria-live="polite"
         data-testid="projects-status"
       >
-        {status === 'loading' ? 'Loading repositories from GitHub…' : null}
-        {status === 'ready' ? `${projects.length} public repositories` : null}
-        {status === 'fallback' && message ? message : null}
-        {status === 'error' ? message ?? 'Could not load repositories.' : null}
+        {status === 'loading' ? content.loading : null}
+        {status === 'ready' ? `${projects.length} ${counted}` : null}
+        {status === 'fallback' && message ? `${message} ${content.fallbackSuffix}` : null}
+        {status === 'error' ? (message ?? content.error) : null}
       </div>
 
       {status === 'loading' ? (
@@ -57,7 +71,13 @@ export function Projects({ githubUser, limit = 6 }: ProjectsProps) {
           <div ref={spotRef}>
             <Reveal as="ul" variant="up" className={styles.grid}>
               {projects.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} />
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  index={index}
+                  labels={content}
+                  locale={locale}
+                />
               ))}
             </Reveal>
           </div>
@@ -66,11 +86,11 @@ export function Projects({ githubUser, limit = 6 }: ProjectsProps) {
 
       {status === 'error' ? (
         <p className={styles.fallbackNote}>
-          You can still browse everything at{' '}
+          {beforeLink ?? ''}
           <a href={`https://github.com/${githubUser}`} rel="noreferrer noopener" target="_blank">
             github.com/{githubUser}
           </a>
-          .
+          {afterLink ?? ''}
         </p>
       ) : null}
 
@@ -82,7 +102,7 @@ export function Projects({ githubUser, limit = 6 }: ProjectsProps) {
           rel="noreferrer noopener"
           target="_blank"
         >
-          All repositories on GitHub
+          {content.allRepositories}
           <Icon name="arrowUpRight" size={16} motion="nudge" />
         </a>
       </Reveal>

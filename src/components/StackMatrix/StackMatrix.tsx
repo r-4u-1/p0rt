@@ -1,4 +1,5 @@
-import type { Proficiency, SkillGroup } from '@/types/portfolio';
+import type { Proficiency } from '@/types/portfolio';
+import type { StackContent } from '@/types/content';
 import { Section } from '@/components/Section';
 import { Reveal } from '@/components/Reveal';
 import { Icon } from '@/components/Icon';
@@ -10,15 +11,19 @@ import { useMotionPreference } from '@/hooks/useMotionPreference';
 import styles from './StackMatrix.module.css';
 
 export interface StackMatrixProps {
-  readonly groups: readonly SkillGroup[];
+  readonly content: StackContent;
 }
 
-/** How confident I am, in words first and a bar second. */
-const LEVEL_COPY: Record<Proficiency, { label: string; fill: number }> = {
-  core: { label: 'Daily', fill: 1 },
-  strong: { label: 'Confident', fill: 0.78 },
-  working: { label: 'Working knowledge', fill: 0.55 },
-  exploring: { label: 'Learning now', fill: 0.32 },
+/**
+ * How long each bar is. The words that go with it are in the language
+ * files — the bar is a measurement and stays the same in every language,
+ * the label is a translation and does not.
+ */
+const LEVEL_FILL: Record<Proficiency, number> = {
+  core: 1,
+  strong: 0.78,
+  working: 0.55,
+  exploring: 0.32,
 };
 
 /** Keyed by group id, so adding a group is a data change plus one line here. */
@@ -64,7 +69,7 @@ export const PINNABLE = '(min-height: 640px)';
  * browser cannot scroll into view. If this section ever gains a link, the
  * pinned mode has to go; the scroll-snap rail would still be fine.
  */
-export function StackMatrix({ groups }: StackMatrixProps) {
+export function StackMatrix({ content }: StackMatrixProps) {
   const runwayRef = useScrollScene<HTMLDivElement>();
   const railRef = useScrollerProgress<HTMLDivElement>();
   const tallEnough = useMediaQuery(PINNABLE);
@@ -78,9 +83,9 @@ export function StackMatrix({ groups }: StackMatrixProps) {
   return (
     <Section
       id="stack"
-      eyebrow="Stack"
-      title="What I reach for"
-      lead="Honest levels rather than a wall of logos. Daily means I wrote some this week; learning now means I would need a code review."
+      eyebrow={content.eyebrow}
+      title={content.title}
+      lead={content.lead}
       surface="raised"
     >
       <div ref={runwayRef} className={styles.runway} data-pinned={pinned ? 'true' : 'false'}>
@@ -90,10 +95,10 @@ export function StackMatrix({ groups }: StackMatrixProps) {
             className={styles.rail}
             tabIndex={pinned ? undefined : 0}
             role={pinned ? undefined : 'group'}
-            aria-label={pinned ? undefined : 'Skill groups, scrolls sideways'}
+            aria-label={pinned ? undefined : content.railLabel}
           >
             <ul className={styles.track}>
-              {groups.map((group, groupIndex) => (
+              {content.groups.map((group, groupIndex) => (
                 <Reveal
                   as="li"
                   key={group.id}
@@ -118,14 +123,14 @@ export function StackMatrix({ groups }: StackMatrixProps) {
 
                   <ul className={styles.skills}>
                     {group.skills.map((skill, skillIndex) => {
-                      const level = LEVEL_COPY[skill.level];
+                      const fill = LEVEL_FILL[skill.level];
                       return (
                         <li
                           key={skill.name}
                           className={styles.skill}
                           style={
                             {
-                              '--fill': level.fill,
+                              '--fill': fill,
                               '--skill-index': skillIndex,
                             } as React.CSSProperties
                           }
@@ -133,7 +138,7 @@ export function StackMatrix({ groups }: StackMatrixProps) {
                           <div className={styles.skillHead}>
                             <span className={styles.skillName}>{skill.name}</span>
                             <span className={styles.skillLevel} data-level={skill.level}>
-                              {level.label}
+                              {content.levels[skill.level]}
                             </span>
                           </div>
                           {skill.note ? <p className={styles.skillNote}>{skill.note}</p> : null}
@@ -155,11 +160,13 @@ export function StackMatrix({ groups }: StackMatrixProps) {
             which one is driving it.
           */}
           <p className={styles.readout} aria-hidden="true">
-            <span className={styles.readoutLabel}>Stack</span>
+            <span className={styles.readoutLabel}>{content.readoutLabel}</span>
             <span className={styles.readoutRail}>
               <span className={styles.readoutFill} />
             </span>
-            <span className={styles.readoutCount}>{groups.length} groups</span>
+            <span className={styles.readoutCount}>
+              {content.groups.length} {content.groupsSuffix}
+            </span>
           </p>
         </div>
       </div>

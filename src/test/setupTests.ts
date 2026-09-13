@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { resetObservers, MockIntersectionObserver } from './intersectionObserver';
 import { resetMotionForTests } from '@/motion/motionPreference';
+import { resetLanguageForTests } from '@/i18n/languagePreference';
 
 expect.extend(toHaveNoViolations);
 
@@ -63,8 +64,9 @@ beforeAll(() => {
 });
 
 /*
- * The motion store is module state that outlives a test, so each case starts
- * from a page that moves and a system that has no opinion.
+ * The motion and language stores are module state that outlives a test, so
+ * each case starts from a page that moves, a system that has no opinion, and
+ * the default language.
  *
  * Deliberately `beforeEach` rather than `afterEach`: resetting notifies the
  * store's subscribers, and Testing Library unmounts *after* this file's
@@ -76,6 +78,7 @@ beforeEach(() => {
   window.matchMedia = defaultMatchMedia;
   localStorage.clear();
   resetMotionForTests();
+  resetLanguageForTests();
 });
 
 afterEach(() => {

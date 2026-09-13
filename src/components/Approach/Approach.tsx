@@ -1,24 +1,24 @@
-import type { Principle } from '@/types/portfolio';
+import type { ApproachContent } from '@/types/content';
 import { Section } from '@/components/Section';
 import { Reveal } from '@/components/Reveal';
 import styles from './Approach.module.css';
 
 export interface ApproachProps {
-  readonly principles: readonly Principle[];
+  readonly content: ApproachContent;
 }
 
 /** What it is actually like to work with me — the part a CV cannot carry. */
-export function Approach({ principles }: ApproachProps) {
+export function Approach({ content }: ApproachProps) {
   return (
     <Section
       id="approach"
-      eyebrow="Approach"
-      title="How I work"
-      lead="Five things I will bring to your team on day one, whichever of the three seats you put me in."
+      eyebrow={content.eyebrow}
+      title={content.title}
+      lead={content.lead}
       surface="raised"
     >
       <ul className={styles.list}>
-        {principles.map((principle, index) => (
+        {content.principles.map((principle, index) => (
           <Reveal
             as="li"
             key={principle.id}

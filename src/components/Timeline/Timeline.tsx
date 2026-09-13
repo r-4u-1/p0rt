@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import type { TimelineEntry } from '@/types/portfolio';
+import type { JourneyContent } from '@/types/content';
 import { Section } from '@/components/Section';
 import { CanvasScene } from '@/components/CanvasScene';
 import { createCrowsScene } from '@/art/crows';
@@ -9,7 +9,7 @@ import { TimelineItem } from './TimelineItem';
 import styles from './Timeline.module.css';
 
 export interface TimelineProps {
-  readonly entries: readonly TimelineEntry[];
+  readonly content: JourneyContent;
 }
 
 /**
@@ -21,7 +21,7 @@ export interface TimelineProps {
  * each time, because the factory re-seeds per run, so the second read is not
  * a replay of the first.
  */
-export function Timeline({ entries }: TimelineProps) {
+export function Timeline({ content }: TimelineProps) {
   const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.05 });
   const progressRef = useScrollProgress<HTMLDivElement>();
 
@@ -40,9 +40,9 @@ export function Timeline({ entries }: TimelineProps) {
   return (
     <Section
       id="journey"
-      eyebrow="Journey"
-      title="Where I have worked"
-      lead="Ten years, three job titles, one consistent interest: making it work and proving that it does."
+      eyebrow={content.eyebrow}
+      title={content.title}
+      lead={content.lead}
       surface="ink"
     >
       <div ref={progressRef} className={styles.sky}>
@@ -58,8 +58,8 @@ export function Timeline({ entries }: TimelineProps) {
             <span className={styles.pulse} />
           </span>
           <ol className={styles.list}>
-            {entries.map((entry, index) => (
-              <TimelineItem key={entry.id} entry={entry} index={index} />
+            {content.entries.map((entry, index) => (
+              <TimelineItem key={entry.id} entry={entry} index={index} labels={content} />
             ))}
           </ol>
         </div>

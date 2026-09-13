@@ -62,13 +62,3 @@ export interface ContactChannel {
   readonly href: string;
 }
 
-export interface Profile {
-  readonly name: string;
-  readonly githubUser: string;
-  readonly roleLine: string;
-  readonly location: string;
-  readonly availability: string;
-  readonly intro: readonly string[];
-  readonly facts: readonly { readonly label: string; readonly value: string }[];
-  readonly channels: readonly ContactChannel[];
-}

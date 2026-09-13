@@ -1,4 +1,4 @@
-import type { Profile } from '@/types/portfolio';
+import type { ContactContent, ProfileContent } from '@/types/content';
 import { Reveal } from '@/components/Reveal';
 import { Icon } from '@/components/Icon';
 import type { IconName } from '@/components/Icon';
@@ -15,29 +15,34 @@ const CHANNEL_ICON: Record<string, IconName> = {
 };
 
 export interface ContactProps {
-  readonly profile: Profile;
+  readonly profile: ProfileContent;
+  readonly content: ContactContent;
 }
 
 /** Footer and contact details in one landmark — the last thing a recruiter reads. */
-export function Contact({ profile }: ContactProps) {
+export function Contact({ profile, content }: ContactProps) {
   const year = new Date().getFullYear();
 
   return (
-    <footer id="contact" className={styles.footer} data-surface="ink" aria-labelledby="contact-heading">
+    <footer
+      id="contact"
+      className={styles.footer}
+      data-surface="ink"
+      aria-labelledby="contact-heading"
+    >
       <div className={styles.inner}>
         <Reveal variant="up">
-          <p className={styles.eyebrow}>Contact</p>
+          <p className={styles.eyebrow}>{content.eyebrow}</p>
           <h2 id="contact-heading" className={styles.headline}>
-            Hiring, or just curious? Write to me.
+            {content.title}
           </h2>
           <p className={styles.lead}>
-            {profile.availability} · {profile.location}. I reply to everything that is not a
-            recruitment bot, usually within a day.
+            {profile.availability} · {profile.location}. {content.lead}
           </p>
         </Reveal>
 
         <Reveal as="ul" variant="up" delay={120} className={styles.channels}>
-          {profile.channels.map((channel, index) => (
+          {content.channels.map((channel, index) => (
             <li
               key={channel.id}
               className={styles.channel}
@@ -64,16 +69,13 @@ export function Contact({ profile }: ContactProps) {
         </Reveal>
 
         <div className={styles.colophon}>
-          <p className={styles.built}>
-            Built with React, TypeScript and CSS Modules. Tested with Jest, Testing Library,
-            Playwright and Percy. Deployed from GitHub Actions to GitHub Pages.
-          </p>
+          <p className={styles.built}>{content.colophon}</p>
           <div className={styles.bottomRow}>
             <p className={styles.copy}>
               © {year} {profile.name}
             </p>
             <a data-ico-host className={styles.top} href="#home">
-              Back to top
+              {content.backToTop}
               <Icon name="arrowDown" size={14} className={styles.topIcon} />
             </a>
           </div>

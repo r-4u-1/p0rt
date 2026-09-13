@@ -1,0 +1,363 @@
+{
+  "language": "sv",
+  "meta": {
+    "documentTitle": "Your Name — Fullstackutvecklare, testautomatisering, scrum master",
+    "documentDescription": "Portfolio för en fullstackutvecklare och testautomatiserare som jobbar med TypeScript, React, Python, Java och lokal AI.",
+    "locale": "sv-SE",
+    "languageName": "Svenska"
+  },
+  "ui": {
+    "skipToContent": "Hoppa till innehållet",
+    "menu": {
+      "open": "Meny",
+      "close": "Stäng",
+      "sectionsLabel": "Sektioner"
+    },
+    "spine": {
+      "label": "Sektionsförlopp"
+    },
+    "motion": {
+      "label": "Rörelse",
+      "turnOn": "Slå på sidans animationer",
+      "turnOff": "Stäng av sidans animationer"
+    },
+    "language": {
+      "label": "Språk",
+      "switchTo": "Switch to English"
+    }
+  },
+  "profile": {
+    "name": "Your Name",
+    "githubUser": "your-github-handle",
+    "roleLine": "Fullstackutvecklare · testautomatisering · scrum master",
+    "location": "Sverige — distans eller hybrid",
+    "availability": "Öppen för nya roller"
+  },
+  "nav": [
+    { "id": "about", "label": "Om mig" },
+    { "id": "stack", "label": "Stack" },
+    { "id": "projects", "label": "Projekt" },
+    { "id": "journey", "label": "Resan" },
+    { "id": "approach", "label": "Arbetssätt" },
+    { "id": "exploring", "label": "Utforskar" },
+    { "id": "contact", "label": "Kontakt" }
+  ],
+  "hero": {
+    "headline": ["Jag bygger det,", "sedan försöker jag", "ha sönder det."],
+    "stats": [
+      {
+        "label": "Nu",
+        "value": "Fullstackutvecklare — TypeScript och React i fronten, Node och Java bakom."
+      },
+      {
+        "label": "Dessutom",
+        "value": "Testautomatisering med Playwright, pytest och Percy. Tre år som scrum master."
+      },
+      {
+        "label": "Efter jobbet",
+        "value": "Lokala modeller i Ollama, retrieval-pipelines och ett robotikkit som väntar på skrivbordet."
+      }
+    ],
+    "readOn": "Läs vidare",
+    "gaugeLabel": "Integritet"
+  },
+  "about": {
+    "eyebrow": "Om mig",
+    "title": "Tre stolar, en produkt",
+    "lead": "Utvecklare, testautomatiserare, scrum master. Samma produkt sedd från tre håll — och det är just där nyttan ligger.",
+    "intro": [
+      "Jag bygger webbapplikationer hela vägen och gör sedan mitt bästa för att ha sönder dem. Tio av åren har gått åt till att flytta mig mellan tre stolar: skriva funktionen, automatisera testerna som håller den ärlig, och facilitera teamet som levererar den.",
+      "I praktiken betyder det JavaScript och TypeScript i React-frontends, Python och Java i bakkanten, och en C#-tjänst när plattformen kräver det. Mest bryr jag mig om det som sällan syns: en svit som failar av rätt anledning, en komponent som går att läsa om ett år, ett gränssnitt som fungerar med tangentbord.",
+      "På fritiden kör jag modeller lokalt med Ollama och parprogrammerar med Claude i sidoprojekt, mest för att förstå var AI faktiskt gör nytta i ett arbetsflöde och var det bara blir brus."
+    ],
+    "factsTitle": "Kort om mig",
+    "facts": [
+      { "label": "Bor i", "value": "Sverige" },
+      { "label": "Arbetssätt", "value": "Distans / hybrid" },
+      { "label": "Utbildning", "value": "Fullstackutvecklare" },
+      { "label": "Språk", "value": "Svenska, engelska" }
+    ]
+  },
+  "stack": {
+    "eyebrow": "Stack",
+    "title": "Det jag griper efter",
+    "lead": "Ärliga nivåer i stället för en vägg av loggor. Dagligen betyder att jag skrev sådant här i veckan; lär mig nu betyder att jag skulle behöva en kodgranskning.",
+    "levels": {
+      "core": "Dagligen",
+      "strong": "Trygg",
+      "working": "Fungerande kunskap",
+      "exploring": "Lär mig nu"
+    },
+    "groups": [
+      {
+        "id": "languages",
+        "title": "Språk",
+        "caption": "Det jag skriver i varje vecka",
+        "skills": [
+          { "name": "TypeScript", "level": "core", "note": "Förstahandsval i allt frontend" },
+          { "name": "JavaScript", "level": "core", "note": "Node och webbläsare" },
+          { "name": "Python", "level": "strong", "note": "Automatisering, data, AI-verktyg" },
+          { "name": "Java", "level": "strong", "note": "Java EE-tjänster" },
+          { "name": "C#", "level": "working", "note": "Nog för att göra nytta i ett .NET-team" },
+          { "name": "SQL", "level": "working", "note": "Postgres och MySQL" }
+        ]
+      },
+      {
+        "id": "building",
+        "title": "Bygger med",
+        "caption": "Ramverk och runtimes",
+        "skills": [
+          { "name": "React", "level": "core", "note": "Hooks, komposition, CSS Modules" },
+          { "name": "MERN-stacken", "level": "strong", "note": "Mongo, Express, React, Node" },
+          { "name": "Java EE", "level": "strong", "note": "Verksamhetstjänster och API:er" },
+          { "name": "REST- & JSON-API:er", "level": "core" },
+          { "name": "Git & CI/CD", "level": "strong", "note": "Pipelines i GitHub Actions" }
+        ]
+      },
+      {
+        "id": "quality",
+        "title": "Kvalitet",
+        "caption": "Det jag är känd för",
+        "skills": [
+          { "name": "Jest + Testing Library", "level": "core", "note": "Enhet och komponent" },
+          { "name": "Playwright", "level": "core", "note": "End to end, över webbläsare" },
+          { "name": "TestCafe", "level": "strong", "note": "Äldre sviter och migreringar" },
+          { "name": "pytest", "level": "strong", "note": "Tjänst- och integrationstester" },
+          { "name": "Percy", "level": "strong", "note": "Visuell regression på varje PR" },
+          {
+            "name": "Tillgänglighetstestning",
+            "level": "working",
+            "note": "axe, tangentbord, skärmläsare"
+          }
+        ]
+      },
+      {
+        "id": "ai",
+        "title": "AI i praktiken",
+        "caption": "Mest privata projekt, alltmer på jobbet",
+        "skills": [
+          { "name": "Claude", "level": "strong", "note": "Parprogrammering, granskning, tester" },
+          {
+            "name": "Ollama & lokala modeller",
+            "level": "working",
+            "note": "Offline, privat som standard"
+          },
+          { "name": "Prompt- och kontextdesign", "level": "working" },
+          { "name": "RAG-pipelines", "level": "exploring", "note": "Sökning i egna dokument" },
+          { "name": "Utvärderingsriggar", "level": "exploring", "note": "Mäta, inte gissa" }
+        ]
+      }
+    ],
+    "readoutLabel": "Stack",
+    "groupsSuffix": "grupper",
+    "railLabel": "Kompetensgrupper, skrollar i sidled"
+  },
+  "projects": {
+    "eyebrow": "Projekt",
+    "title": "Direkt från GitHub",
+    "lead": "Hämtas från det publika API:et när sidan laddas, sorterat på stjärnor och sedan datum. Går GitHub inte att nå får du ett sparat urval i stället.",
+    "loading": "Hämtar repon från GitHub…",
+    "ready": { "one": "publikt repo", "other": "publika repon" },
+    "fallbackSuffix": "Visar ett sparat urval i stället.",
+    "error": "Kunde inte ladda några repon.",
+    "browseAt": "Du kan fortfarande bläddra bland allt på {link}.",
+    "allRepositories": "Alla repon på GitHub",
+    "opensOnGitHub": "(öppnas på GitHub i en ny flik)",
+    "updated": "Uppdaterad",
+    "stars": { "one": "stjärna", "other": "stjärnor" }
+  },
+  "journey": {
+    "eyebrow": "Resan",
+    "title": "Var jag har jobbat",
+    "lead": "Tio år, tre titlar, ett genomgående intresse: få det att fungera och kunna bevisa att det gör det.",
+    "present": "nu",
+    "kinds": {
+      "development": "Utveckling",
+      "quality": "Kvalitetsarbete",
+      "leadership": "Teamfacilitering",
+      "education": "Utbildning"
+    },
+    "toolsLabel": "Verktyg som {role}",
+    "entries": [
+      {
+        "id": "fullstack-dev",
+        "role": "Fullstackutvecklare",
+        "organisation": "Nuvarande arbetsgivare",
+        "start": "2022",
+        "kind": "development",
+        "summary": "Funktionsutveckling i en frontend av React och TypeScript med Node- och Java-tjänster bakom.",
+        "highlights": [
+          "Byggde om en gammal vy till komponerbara React-komponenter med CSS Modules och sänkte renderingskostnaden i mobilen.",
+          "Införde visuell regression med Percy så att designändringar slutade komma som överraskningar.",
+          "Mentor åt två juniora utvecklare genom kodgranskning och parprogrammering."
+        ],
+        "stack": ["TypeScript", "React", "Node", "Java EE", "Jest", "Playwright"]
+      },
+      {
+        "id": "scrum-master",
+        "role": "Scrum master",
+        "organisation": "Tidigare arbetsgivare",
+        "start": "2020",
+        "end": "2022",
+        "kind": "leadership",
+        "summary": "Faciliterade två leveransteam och höll mig samtidigt kvar i koden ungefär halva veckan.",
+        "highlights": [
+          "Körde refinement, retro och planering för team på sex till nio personer.",
+          "Kortade ledtiden genom att låta definition of done omfatta automatiserade tester.",
+          "Fortsatte skriva kod — en scrum master som inte kan läsa backloggen tekniskt är en budbärare."
+        ],
+        "stack": ["Scrum", "Kanban", "Jira", "TypeScript", "Python"]
+      },
+      {
+        "id": "test-automation",
+        "role": "Testautomatiserare",
+        "organisation": "Tidigare arbetsgivare",
+        "start": "2017",
+        "end": "2020",
+        "kind": "quality",
+        "summary": "Ägde hela den automatiserade testsviten: enhet, integration, end to end och visuellt.",
+        "highlights": [
+          "Migrerade en skör TestCafe-svit till Playwright och tog körtiden från 40 till 11 minuter.",
+          "Byggde tjänstetester i pytest som körs mot tillfälliga miljöer i CI.",
+          "Gjorde flakiga tester till en spårad defekttyp i stället för något folk körde om."
+        ],
+        "stack": ["Playwright", "TestCafe", "pytest", "Python", "C#", "GitHub Actions"]
+      },
+      {
+        "id": "developer",
+        "role": "Utvecklare",
+        "organisation": "Första utvecklarrollen",
+        "start": "2015",
+        "end": "2017",
+        "kind": "development",
+        "summary": "Byggde och förvaltade interna webbverktyg på en MERN-stack.",
+        "highlights": [
+          "Levererade den första React-omskrivningen av ett internt adminverktyg.",
+          "Skrev teamets första Jest-tester och vanan satt kvar."
+        ],
+        "stack": ["JavaScript", "React", "Express", "MongoDB", "Jest"]
+      },
+      {
+        "id": "education",
+        "role": "Fullstackutvecklarprogrammet",
+        "organisation": "Yrkeshögskola",
+        "start": "2013",
+        "end": "2015",
+        "kind": "education",
+        "summary": "Två års fullstackutbildning med LIA-perioder, från databaser till driftsättning.",
+        "highlights": [
+          "Grunder i Java och JavaScript, relationsdatabaser och agil metodik.",
+          "Tog examen med en MERN-applikation som examensarbete."
+        ],
+        "stack": ["Java", "JavaScript", "SQL", "HTML & CSS"]
+      }
+    ]
+  },
+  "approach": {
+    "eyebrow": "Arbetssätt",
+    "title": "Så jobbar jag",
+    "lead": "Fem saker jag tar med mig in i teamet dag ett, oavsett vilken av de tre stolarna ni sätter mig i.",
+    "principles": [
+      {
+        "id": "tests-are-design",
+        "title": "Tester är ett designverktyg",
+        "body": "Är en komponent svår att testa är den oftast illa formad. Jag skriver testet för att få veta det tidigt, inte för att klara en täckningsgrind."
+      },
+      {
+        "id": "small-surfaces",
+        "title": "Små ytor, tydliga fogar",
+        "body": "En anledning att ändra per modul, beroenden som pekar på gränssnitt i stället för implementationer. Den här sidan är byggd så — projektlistan vet inte om att GitHub finns."
+      },
+      {
+        "id": "accessible-default",
+        "title": "Tillgänglig som utgångsläge",
+        "body": "Tangentbordsvägar, fokusordning, kontrast och reducerad rörelse ingår i klart. Automatiska axe-kontroller fångar det uppenbara; resten går jag igenom för hand."
+      },
+      {
+        "id": "facilitate",
+        "title": "Facilitering är ingenjörsarbete",
+        "body": "Tre år som scrum master lärde mig att de flesta leveransproblem handlar om otydlig omfattning, inte om långsam maskinskrivning. Jag håller fortfarande i refinement när jag blir inbjuden."
+      },
+      {
+        "id": "ai-with-evidence",
+        "title": "AI med en mätning fastsatt",
+        "body": "Jag använder Claude och lokala modeller dagligen och behandlar det de skriver som vilket bidrag som helst — granskat, testat och refuserat när det är fel."
+      }
+    ]
+  },
+  "exploring": {
+    "eyebrow": "Utforskar",
+    "title": "Vad jag lär mig härnäst",
+    "lead": "Jag visar hellre var min kunskap tar slut än låtsas att den inte gör det. Det här är de sex saker som tar mina kvällar just nu.",
+    "statuses": {
+      "building": "Bygger något",
+      "reading": "Läser och testar",
+      "next": "Näst på tur"
+    },
+    "topics": [
+      {
+        "id": "mobile",
+        "title": "Mobilapplikationer",
+        "why": "Jag kan webben på djupet. Jag vill ha samma flyt på en enhet — React Native först, sedan tillräckligt med native för att märka när abstraktionen läcker.",
+        "status": "building"
+      },
+      {
+        "id": "rag",
+        "title": "Retrieval augmented generation",
+        "why": "Chunkning, embeddings och ranking är där de flesta RAG-system tyst går sönder. Jag vill bygga ett ordentligt i stället för att limma ihop en vektordatabas med en prompt.",
+        "status": "building"
+      },
+      {
+        "id": "harness",
+        "title": "Utvärderingsriggar",
+        "why": "Testautomatiseringsinstinkter applicerade på modeller. Kan jag inte mäta en förändring i svarskvalitet har jag inte ändrat något på riktigt.",
+        "status": "reading"
+      },
+      {
+        "id": "local-ai",
+        "title": "Lokal och privat AI",
+        "why": "Ollama på egen hårdvara, små modeller finjusterade för smala uppgifter, ingen data som lämnar maskinen. Nyttigt och genuint roligt.",
+        "status": "building"
+      },
+      {
+        "id": "ai-general",
+        "title": "AI, bortom API-anropet",
+        "why": "Tillräckligt av mekaniken under huven — tokenisering, kontext, verktygsanrop — för att kunna resonera om gränserna i stället för att gissa.",
+        "status": "reading"
+      },
+      {
+        "id": "robotics",
+        "title": "Robotik",
+        "why": "Mjukvara som rör något fysiskt har en återkopplingsslinga inget annat har. Jag börjar med mikrokontroller och sensorer.",
+        "status": "next"
+      }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Kontakt",
+    "title": "Rekryterar du, eller är du bara nyfiken? Skriv till mig.",
+    "lead": "Jag svarar på allt som inte är en rekryteringsbot, oftast inom ett dygn.",
+    "channels": [
+      {
+        "id": "email",
+        "label": "E-post",
+        "value": "hello@example.com",
+        "href": "mailto:hello@example.com"
+      },
+      {
+        "id": "github",
+        "label": "GitHub",
+        "value": "github.com/your-github-handle",
+        "href": "https://github.com/your-github-handle"
+      },
+      {
+        "id": "linkedin",
+        "label": "LinkedIn",
+        "value": "linkedin.com/in/your-handle",
+        "href": "https://www.linkedin.com/in/your-handle"
+      }
+    ],
+    "colophon": "Byggd med React, TypeScript och CSS Modules. Testad med Jest, Testing Library, Playwright och Percy. Driftsatt från GitHub Actions till GitHub Pages.",
+    "backToTop": "Till toppen"
+  }
+}

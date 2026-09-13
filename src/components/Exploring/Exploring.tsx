@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import type { ExploreTopic } from '@/types/portfolio';
+import type { ExploringContent } from '@/types/content';
 import { Section } from '@/components/Section';
 import { Reveal } from '@/components/Reveal';
 import { Icon } from '@/components/Icon';
@@ -10,14 +11,8 @@ import { useScrollProgress } from '@/hooks/useScrollProgress';
 import styles from './Exploring.module.css';
 
 export interface ExploringProps {
-  readonly topics: readonly ExploreTopic[];
+  readonly content: ExploringContent;
 }
-
-const STATUS_LABEL: Record<ExploreTopic['status'], string> = {
-  building: 'Building something',
-  reading: 'Reading and testing',
-  next: 'Up next',
-};
 
 const STATUS_ICON: Record<ExploreTopic['status'], IconName> = {
   building: 'pulse',
@@ -41,7 +36,7 @@ const STATUS_MOTION = {
  * for the same reason: it should look like this page's output, not like a
  * film's.
  */
-export function Exploring({ topics }: ExploringProps) {
+export function Exploring({ content }: ExploringProps) {
   const driftRef = useScrollProgress<HTMLDivElement>();
   const rain = useCallback(
     () => createTelemetryRainScene({ seed: Math.floor(Math.random() * 1e9) }),
@@ -51,9 +46,9 @@ export function Exploring({ topics }: ExploringProps) {
   return (
     <Section
       id="exploring"
-      eyebrow="Exploring"
-      title="What I am learning next"
-      lead="I would rather show you the edge of what I know than pretend it is not there. These are the six things currently taking up my evenings."
+      eyebrow={content.eyebrow}
+      title={content.title}
+      lead={content.lead}
       surface="ink"
     >
       <div ref={driftRef} className={styles.field}>
@@ -62,7 +57,7 @@ export function Exploring({ topics }: ExploringProps) {
         </div>
 
         <ul className={styles.grid}>
-          {topics.map((topic, index) => (
+          {content.topics.map((topic, index) => (
             <Reveal
               as="li"
               key={topic.id}
@@ -78,7 +73,7 @@ export function Exploring({ topics }: ExploringProps) {
                   size={14}
                   motion={STATUS_MOTION[topic.status]}
                 />
-                {STATUS_LABEL[topic.status]}
+                {content.statuses[topic.status]}
               </span>
               <h3 className={styles.title}>{topic.title}</h3>
               <p className={styles.why}>{topic.why}</p>

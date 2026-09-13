@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { ScrollSpine } from './ScrollSpine';
-import { navItems } from '@/data/navigation';
+import { en } from '@/test/content';
 import { installMatchMedia } from '@/test/media';
 
 const MAP_QUERY = '(min-width: 1100px)';
@@ -16,7 +16,7 @@ describe('ScrollSpine', () => {
     });
 
     it('reports a position and nothing else', () => {
-      render(<ScrollSpine items={navItems} />);
+      render(<ScrollSpine items={en.nav} label={en.ui.spine.label} />);
 
       expect(spine().querySelector('nav')).toBeNull();
       expect(screen.queryAllByRole('button')).toHaveLength(0);
@@ -27,7 +27,7 @@ describe('ScrollSpine', () => {
      * add noise without adding a way to get anywhere.
      */
     it('keeps the bar out of the accessibility tree', () => {
-      render(<ScrollSpine items={navItems} />);
+      render(<ScrollSpine items={en.nav} label={en.ui.spine.label} />);
 
       expect(spine().querySelector('[aria-hidden="true"]')).not.toBeNull();
     });
@@ -36,7 +36,7 @@ describe('ScrollSpine', () => {
       const user = userEvent.setup();
       render(
         <>
-          <ScrollSpine items={navItems} />
+          <ScrollSpine items={en.nav} label={en.ui.spine.label} />
           <button type="button">after</button>
         </>,
       );
@@ -53,26 +53,26 @@ describe('ScrollSpine', () => {
     });
 
     it('becomes a labelled navigation, distinct from the main one', () => {
-      render(<ScrollSpine items={navItems} />);
+      render(<ScrollSpine items={en.nav} label={en.ui.spine.label} />);
 
       expect(screen.getByRole('navigation', { name: /section progress/i })).toBeInTheDocument();
     });
 
     it('offers one control per section', () => {
-      render(<ScrollSpine items={navItems} />);
+      render(<ScrollSpine items={en.nav} label={en.ui.spine.label} />);
 
-      expect(screen.getAllByRole('button')).toHaveLength(navItems.length);
+      expect(screen.getAllByRole('button')).toHaveLength(en.nav.length);
     });
 
     it('marks the section being read', () => {
-      render(<ScrollSpine items={navItems} activeId="projects" />);
+      render(<ScrollSpine items={en.nav} label={en.ui.spine.label} activeId="projects" />);
 
       const current = screen.getByRole('button', { current: true });
       expect(current).toHaveAccessibleName(/projects/i);
     });
 
     it('marks nothing when no section is active', () => {
-      render(<ScrollSpine items={navItems} />);
+      render(<ScrollSpine items={en.nav} label={en.ui.spine.label} />);
 
       expect(screen.queryByRole('button', { current: true })).toBeNull();
     });
@@ -86,7 +86,7 @@ describe('ScrollSpine', () => {
       document.body.appendChild(target);
 
       try {
-        render(<ScrollSpine items={navItems} />);
+        render(<ScrollSpine items={en.nav} label={en.ui.spine.label} />);
         await user.click(screen.getByRole('button', { name: /journey/i }));
 
         expect(scrollIntoView).toHaveBeenCalledTimes(1);
@@ -100,7 +100,7 @@ describe('ScrollSpine', () => {
 
     it('does not fall over when a section is missing from the page', async () => {
       const user = userEvent.setup();
-      render(<ScrollSpine items={navItems} />);
+      render(<ScrollSpine items={en.nav} label={en.ui.spine.label} />);
 
       await expect(
         user.click(screen.getByRole('button', { name: /approach/i })),
@@ -116,7 +116,7 @@ describe('ScrollSpine', () => {
       document.body.appendChild(target);
 
       try {
-        render(<ScrollSpine items={navItems} />);
+        render(<ScrollSpine items={en.nav} label={en.ui.spine.label} />);
         await user.tab();
         expect(screen.getByRole('button', { name: /about/i })).toHaveFocus();
 
@@ -128,7 +128,7 @@ describe('ScrollSpine', () => {
     });
 
     it('has no detectable accessibility violations', async () => {
-      const { container } = render(<ScrollSpine items={navItems} activeId="stack" />);
+      const { container } = render(<ScrollSpine items={en.nav} label={en.ui.spine.label} activeId="stack" />);
 
       expect(await axe(container)).toHaveNoViolations();
     });
@@ -136,7 +136,7 @@ describe('ScrollSpine', () => {
 
   it('spaces its markers evenly along the rail', () => {
     installMatchMedia({ [MAP_QUERY]: true });
-    render(<ScrollSpine items={navItems} />);
+    render(<ScrollSpine items={en.nav} label={en.ui.spine.label} />);
 
     const positions = [...spine().querySelectorAll('li')].map((node) =>
       node.style.getPropertyValue('--node-position'),

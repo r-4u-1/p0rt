@@ -3,7 +3,7 @@ import type { ProjectSource } from './projectSource';
 import { GitHubProjectSource } from './github/githubProjectSource';
 import { StaticProjectSource } from './staticProjectSource';
 import { fallbackProjects } from './fallbackProjects';
-import { profile } from '@/data/profile';
+import { content } from '@/content';
 
 export interface Services {
   readonly projectSource: ProjectSource;
@@ -12,9 +12,14 @@ export interface Services {
 
 const ServicesContext = createContext<Services | null>(null);
 
+/*
+ * The GitHub handle is identity rather than text: both language files carry
+ * the same one, and content.test.ts holds them to it. English is simply the
+ * file this reads it from.
+ */
 export function createDefaultServices(): Services {
   return {
-    projectSource: new GitHubProjectSource({ username: profile.githubUser }),
+    projectSource: new GitHubProjectSource({ username: content.en.profile.githubUser }),
     fallbackSource: new StaticProjectSource(fallbackProjects),
   };
 }

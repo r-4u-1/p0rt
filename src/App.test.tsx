@@ -4,7 +4,7 @@ import { axe } from 'jest-axe';
 import App from './App';
 import { renderWithServices } from '@/test/renderWithServices';
 import { FakeProjectSource, makeProject } from '@/test/fakeProjectSource';
-import { navItems } from '@/data/navigation';
+import { en, sv } from '@/test/content';
 
 /** Renders and waits for the injected project load, so no state settles after a test ends. */
 async function renderApp() {
@@ -32,7 +32,7 @@ describe('App', () => {
 
   it('renders a section for every navigation entry', async () => {
     await renderApp();
-    navItems.forEach((item) => {
+    en.nav.forEach((item) => {
       expect(document.getElementById(item.id)).not.toBeNull();
     });
   });
@@ -74,6 +74,46 @@ describe('App', () => {
     await renderApp();
     const projects = screen.getByRole('region', { name: /live from github/i });
     expect(await within(projects).findByRole('link', { name: /demo-repo/i })).toBeInTheDocument();
+  });
+
+  /*
+   * The language control is the only thing on the page that changes every
+   * other thing on the page. One press has to move the nav, the section
+   * headings, the prose and the document itself — anything still in English
+   * afterwards is a string a component kept for itself instead of taking as
+   * a prop.
+   */
+  describe('switching language', () => {
+    it("renders the whole page in the other language", async () => {
+      const user = userEvent.setup();
+      await renderApp();
+      expect(screen.getByRole("heading", { name: en.about.title })).toBeInTheDocument();
+
+      await user.click(screen.getByTestId("language-toggle"));
+
+      expect(screen.getByRole("heading", { name: sv.about.title })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: new RegExp(sv.nav[3]?.label ?? "", "i") })).toBeInTheDocument();
+      expect(screen.queryByRole("heading", { name: en.about.title })).toBeNull();
+    });
+
+    it("tells the document which language it is now in", async () => {
+      const user = userEvent.setup();
+      await renderApp();
+
+      await user.click(screen.getByTestId("language-toggle"));
+
+      expect(document.documentElement.lang).toBe("sv");
+      expect(document.title).toBe(sv.meta.documentTitle);
+    });
+
+    it("keeps the section anchors, so a link shared in one language works in the other", async () => {
+      const user = userEvent.setup();
+      await renderApp();
+
+      await user.click(screen.getByTestId("language-toggle"));
+
+      en.nav.forEach((item) => expect(document.getElementById(item.id)).not.toBeNull());
+    });
   });
 
   it('has no detectable accessibility violations across the whole page', async () => {

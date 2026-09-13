@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
 import { MotionToggle } from './MotionToggle';
+import { en } from '@/test/content';
 import { setSystemReducedMotion } from '@/test/motion';
 import { getMotionSnapshot } from '@/motion/motionPreference';
 
@@ -15,7 +16,7 @@ describe('MotionToggle', () => {
   it('reads as pressed while the page is allowed to move', () => {
     setSystemReducedMotion(false);
 
-    render(<MotionToggle />);
+    render(<MotionToggle labels={en.ui.motion} />);
 
     expect(toggle()).toHaveAttribute('aria-pressed', 'true');
   });
@@ -23,7 +24,7 @@ describe('MotionToggle', () => {
   it('reads as unpressed when the system asked for less motion', () => {
     setSystemReducedMotion(true);
 
-    render(<MotionToggle />);
+    render(<MotionToggle labels={en.ui.motion} />);
 
     expect(toggle()).toHaveAttribute('aria-pressed', 'false');
   });
@@ -31,7 +32,7 @@ describe('MotionToggle', () => {
   it('stops the page when pressed', async () => {
     setSystemReducedMotion(false);
     const user = userEvent.setup();
-    render(<MotionToggle />);
+    render(<MotionToggle labels={en.ui.motion} />);
 
     await user.click(toggle());
 
@@ -46,7 +47,7 @@ describe('MotionToggle', () => {
   it('starts a page the system had stopped', async () => {
     setSystemReducedMotion(true);
     const user = userEvent.setup();
-    render(<MotionToggle />);
+    render(<MotionToggle labels={en.ui.motion} />);
 
     await user.click(toggle());
 
@@ -57,7 +58,7 @@ describe('MotionToggle', () => {
   it('flips the document attribute the stylesheet keys off', async () => {
     setSystemReducedMotion(false);
     const user = userEvent.setup();
-    render(<MotionToggle />);
+    render(<MotionToggle labels={en.ui.motion} />);
 
     await user.click(toggle());
 
@@ -67,7 +68,7 @@ describe('MotionToggle', () => {
   it('remembers the choice for the next visit', async () => {
     setSystemReducedMotion(false);
     const user = userEvent.setup();
-    render(<MotionToggle />);
+    render(<MotionToggle labels={en.ui.motion} />);
 
     await user.click(toggle());
 
@@ -77,7 +78,7 @@ describe('MotionToggle', () => {
   it('is operable from the keyboard', async () => {
     setSystemReducedMotion(false);
     const user = userEvent.setup();
-    render(<MotionToggle />);
+    render(<MotionToggle labels={en.ui.motion} />);
 
     await user.tab();
     expect(toggle()).toHaveFocus();
@@ -89,7 +90,7 @@ describe('MotionToggle', () => {
   it('explains what pressing it will do, in both states', async () => {
     setSystemReducedMotion(false);
     const user = userEvent.setup();
-    render(<MotionToggle />);
+    render(<MotionToggle labels={en.ui.motion} />);
 
     expect(toggle()).toHaveAttribute('title', 'Turn page animation off');
     await user.click(toggle());
@@ -98,7 +99,7 @@ describe('MotionToggle', () => {
 
   it('keeps its indicator out of the accessibility tree', () => {
     setSystemReducedMotion(false);
-    const { container } = render(<MotionToggle />);
+    const { container } = render(<MotionToggle labels={en.ui.motion} />);
 
     // aria-pressed already carries the state; the bars are the sighted copy.
     expect(container.querySelector('[aria-hidden="true"]')).not.toBeNull();
@@ -106,7 +107,7 @@ describe('MotionToggle', () => {
 
   it('has no detectable accessibility violations', async () => {
     setSystemReducedMotion(false);
-    const { container } = render(<MotionToggle />);
+    const { container } = render(<MotionToggle labels={en.ui.motion} />);
 
     expect(await axe(container)).toHaveNoViolations();
   });

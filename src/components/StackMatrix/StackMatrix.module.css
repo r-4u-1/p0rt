@@ -378,10 +378,14 @@
   /*
    * Tighter than the shared rhythm. On the shortest screen this mode runs
    * on, the panel, the gap and the readout have to add up to less than the
-   * viewport, and the gap is the only one of the three that can give.
+   * viewport — and the panel is the one of the three that cannot give,
+   * because it is the content. The gap and the bottom margin can, and the
+   * slack they buy back is about a line of text: enough that a translation
+   * running one line longer than the English still fits.
    */
   :root:not([data-motion='off']) .stage {
-    gap: clamp(0.75rem, 2.5vh, 1.5rem);
+    gap: clamp(0.6rem, 2.5vh, 1.5rem);
+    padding-block: clamp(4rem, 8vh, 5.5rem) clamp(0.75rem, 4vh, 3.25rem);
   }
 
   :root:not([data-motion='off']) .group {

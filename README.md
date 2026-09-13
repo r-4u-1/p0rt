@@ -13,21 +13,45 @@ npm run dev        # http://localhost:5173
 
 ## Make it yours
 
-Everything personal lives in `src/data/`. No component needs editing.
+Everything the page says lives in `src/content/`, one JSON file per language. No component
+needs editing, and no component imports a language file — the composition root reads the
+current one and hands each section its words as props.
 
 | File | What it holds |
 | --- | --- |
-| `profile.ts` | Name, GitHub handle, intro, quick facts, contact links |
-| `hero.ts` | The landing headline and the three status readouts |
-| `skills.ts` | Skill groups and honest proficiency levels |
-| `timeline.ts` | Employment and education history, newest first |
-| `principles.ts` | The "how I work" section |
-| `explore.ts` | What you are learning next |
-| `navigation.ts` | Section order — drives the nav, the spine and the page |
+| `en.json` | The whole site in English — the default |
+| `sv.json` | The whole site in Swedish |
 
-Start with `profile.ts`: replace `name`, `githubUser` and the three `channels`. The project
-list will then populate itself from your real GitHub account. Also update the `<title>`,
-description and `noscript` fallback in `index.html`.
+Each file is complete on its own, so a translator sees a whole site rather than half of one.
+Within a file:
+
+| Key | What it holds |
+| --- | --- |
+| `profile` | Name, GitHub handle, role line, location, availability |
+| `meta` | Document title, description, locale used for dates |
+| `ui` | Chrome: skip link, menu, motion and language switches |
+| `nav` | Section order — drives the nav, the spine and the page |
+| `hero` | The landing headline (one string per line) and the three readouts |
+| `about`, `stack`, `projects`, `journey`, `approach`, `exploring`, `contact` | One section each, heading and body together |
+
+Start with `profile` in **both** files: replace `name`, `githubUser` and the three
+`contact.channels`. The project list will then populate itself from your real GitHub
+account. Also update the `<title>`, description and `noscript` fallback in `index.html`,
+which is what a visitor sees before JavaScript runs.
+
+### Keeping the two files honest
+
+`src/content/content.test.ts` is the compiler the JSON does not have. It fails the build if a
+file uses a proficiency level or role kind that does not exist, loses a `{link}` or `{role}`
+placeholder, leaves a string empty — or if the two languages stop describing the same site.
+Words may differ; ids, dates, levels, tool names and contact links may not. Add a skill to one
+language and the suite tells you which file is missing it.
+
+### Adding a third language
+
+Copy a file, translate it, and add it in three places: the `Language` union in
+`src/types/content.ts`, the map and list in `src/content/index.ts`, and a two-letter code in
+`LanguageToggle`. The switch cycles through `languages` in order, so nothing else changes.
 
 ---
 
@@ -47,11 +71,13 @@ src/
 │   ├── Timeline/        animated history + TimelineItem/ child
 │   └── …                About, StackMatrix, Approach, Exploring, Contact, SkipLink
 │   ├── MotionToggle/    the visitor's own motion switch
+│   ├── LanguageToggle/  English or Swedish, remembered across visits
 ├── art/                 canvas scenes as pure functions of state and time
 ├── motion/              the motion store: system preference + the visitor's override
+├── i18n/                the language store: the choice, remembered, and the <html lang>
 ├── hooks/               useInView, useScrollScene, useScrollProgress, useCanvasScene…
 ├── services/            data sources behind an interface
-├── data/                all editable content
+├── content/             the site in English and Swedish, one JSON file each
 ├── types/               domain model — no React, no DOM
 └── test/                observer mock, fake 2D context, fakes, render helper
 ```
@@ -69,7 +95,8 @@ shape, so a change to their API touches one file.
 are interchangeable. The fallback path in `useProjects` swaps one for another at runtime.
 
 **Interface segregation** — components take narrow, readonly props describing exactly what
-they render. `Timeline` receives entries; it does not receive the whole profile.
+they render. `Timeline` receives the journey section; it never sees the language file it was
+cut from, let alone the other language.
 
 **Dependency inversion** — `Projects` depends on the `ProjectSource` interface, resolved from
 context. Production wires GitHub, tests wire a fake, Percy wires a stubbed route. Nothing in

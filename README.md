@@ -323,7 +323,7 @@ The workflow sets `VITE_BASE` from the repository name, so the site works at
 
 ---
 
-## Performance and accessibility notes
+## Performance and accessibility notes!
 
 - React is split into its own chunk; the app bundle is ~50 kB before gzip.
 - Scroll work is `transform` and `opacity` only, batched with `requestAnimationFrame`.

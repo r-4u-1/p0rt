@@ -1,9 +1,12 @@
 import type { Language, SiteContent } from '@/types/content';
-import en from './en.json';
-import sv from './sv.json';
+import siteContent from 'virtual:site-content';
 
 /**
  * The language files, typed.
+ *
+ * They arrive through `virtual:site-content`: the real content when it was
+ * injected at build time, the committed placeholder `en.json` and `sv.json`
+ * otherwise (see `config/siteContent.ts`).
  *
  * `resolveJsonModule` widens every string in a JSON file to `string`, so a
  * literal union like `Proficiency` cannot survive the import and the cast is
@@ -14,8 +17,8 @@ import sv from './sv.json';
  * a test can, and it fails the same build.
  */
 export const content: Readonly<Record<Language, SiteContent>> = {
-  en: en as unknown as SiteContent,
-  sv: sv as unknown as SiteContent,
+  en: siteContent.en as unknown as SiteContent,
+  sv: siteContent.sv as unknown as SiteContent,
 };
 
 /** Order here is the order the language control cycles through. */

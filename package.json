@@ -12,6 +12,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "content:pack": "node scripts/pack-content.mjs",
+    "content:check": "node scripts/check-content.mjs",
     "e2e": "playwright test --config=playwright.config.ts",
     "percy": "percy exec -- playwright test --config=playwright.percy.config.ts"
   },

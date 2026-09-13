@@ -28,8 +28,18 @@ jobs:
 
       - run: npm ci
 
+      # Runs against the placeholders in src/content/, which is what the
+      # component tests are written for.
       - name: Unit tests
         run: npm test
+
+      # The real site content lives in the SITE_CONTENT repository secret, as
+      # one JSON document: { "en": {...}, "sv": {...} }. Without the secret the
+      # placeholders are deployed. --quiet keeps failing values out of the log.
+      - name: Check site content
+        run: node scripts/check-content.mjs --quiet
+        env:
+          SITE_CONTENT: ${{ secrets.SITE_CONTENT }}
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -40,6 +50,7 @@ jobs:
         run: npm run build
         env:
           VITE_BASE: /${{ github.event.repository.name }}/
+          SITE_CONTENT: ${{ secrets.SITE_CONTENT }}
 
       - name: Add SPA/404 fallback
         run: cp dist/index.html dist/404.html

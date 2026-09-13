@@ -47,6 +47,41 @@ placeholder, leaves a string empty — or if the two languages stop describing t
 Words may differ; ids, dates, levels, tool names and contact links may not. Add a skill to one
 language and the suite tells you which file is missing it.
 
+### Keeping your real content out of the repository
+
+The committed `en.json` and `sv.json` are placeholders. The real content can be supplied at build
+time as **one** JSON document holding both languages:
+
+```json
+{ "en": { "language": "en", "meta": { … }, … }, "sv": { "language": "sv", … } }
+```
+
+The build takes the first of these that exists:
+
+| Source | Used by |
+| --- | --- |
+| `SITE_CONTENT` env var — the document itself | The deploy workflow, from a repository secret |
+| `SITE_CONTENT_FILE` env var — a path to the document | Any build |
+| `site-content.local.json` in the project root (git-ignored) | `npm run dev` and local builds |
+| `src/content/en.json` + `sv.json` | Everything else: tests, CI, Percy, forks |
+
+Set it up once:
+
+```bash
+npm run content:pack        # combine src/content/en.json + sv.json → site-content.local.json
+# edit site-content.local.json with the real content (npm run dev reloads on save)
+npm run content:check       # run content.test.ts against it
+gh secret set SITE_CONTENT < site-content.local.json
+```
+
+Content that is present but wrong fails the build with the paths that are wrong — it never falls
+back to the placeholders silently. The deploy workflow also runs `content.test.ts` against the
+secret, with its output hidden, because the log of a public repository is public.
+
+This keeps the content out of git history, **not** out of public view: GitHub Pages serves the
+built site to everyone, and every word of it is in the JavaScript bundle. Don't put anything in
+it you would not put on the page.
+
 ### Adding a third language
 
 Copy a file, translate it, and add it in three places: the `Language` union in
